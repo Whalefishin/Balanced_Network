@@ -1,0 +1,503 @@
+vertex
+Kevin Bacon
+vertex
+Gryllus Floyd
+vertex
+Jared Watson
+vertex
+Ace Watson
+vertex
+Jaimie Dengar
+vertex
+Wibbly Bajie
+vertex
+Pink Pigoon
+vertex
+Oolong Danseur
+vertex
+Fener Trwyth
+vertex
+Waddles Hog
+vertex
+Hamlet Hamilton
+vertex
+Toby Piggins
+vertex
+Grunty Dengar
+vertex
+Hogzilla Corpus
+vertex
+Boris Pig
+vertex
+Pig Pork
+vertex
+Edessa Porker
+vertex
+Jared Piggy
+vertex
+Peppa Hog
+vertex
+Rasher Hamton
+vertex
+Karnac Wen
+vertex
+Zhu Stele
+vertex
+Sam Curlytail
+vertex
+Jodie Robinson
+vertex
+Napoleon Floyd
+edge
+Kevin Bacon
+Gryllus Floyd
+1
+edge
+Kevin Bacon
+Ace Watson
+1
+edge
+Kevin Bacon
+Jaimie Dengar
+1
+edge
+Kevin Bacon
+Wibbly Bajie
+1
+edge
+Kevin Bacon
+Fener Trwyth
+1
+edge
+Kevin Bacon
+Grunty Dengar
+1
+edge
+Kevin Bacon
+Hogzilla Corpus
+1
+edge
+Kevin Bacon
+Pig Pork
+1
+edge
+Kevin Bacon
+Zhu Stele
+1
+edge
+Kevin Bacon
+Napoleon Floyd
+1
+edge
+Gryllus Floyd
+Jared Watson
+1
+edge
+Gryllus Floyd
+Ace Watson
+1
+edge
+Gryllus Floyd
+Jaimie Dengar
+1
+edge
+Gryllus Floyd
+Wibbly Bajie
+1
+edge
+Gryllus Floyd
+Pink Pigoon
+1
+edge
+Gryllus Floyd
+Oolong Danseur
+1
+edge
+Gryllus Floyd
+Fener Trwyth
+1
+edge
+Gryllus Floyd
+Hogzilla Corpus
+1
+edge
+Gryllus Floyd
+Boris Pig
+1
+edge
+Gryllus Floyd
+Rasher Hamton
+1
+edge
+Gryllus Floyd
+Karnac Wen
+1
+edge
+Gryllus Floyd
+Zhu Stele
+1
+edge
+Gryllus Floyd
+Jodie Robinson
+1
+edge
+Gryllus Floyd
+Napoleon Floyd
+1
+edge
+Jared Watson
+Ace Watson
+1
+edge
+Jared Watson
+Jaimie Dengar
+1
+edge
+Ace Watson
+Jaimie Dengar
+1
+edge
+Ace Watson
+Wibbly Bajie
+1
+edge
+Ace Watson
+Pink Pigoon
+1
+edge
+Ace Watson
+Oolong Danseur
+1
+edge
+Ace Watson
+Fener Trwyth
+1
+edge
+Ace Watson
+Grunty Dengar
+1
+edge
+Ace Watson
+Hogzilla Corpus
+1
+edge
+Ace Watson
+Pig Pork
+1
+edge
+Ace Watson
+Edessa Porker
+1
+edge
+Ace Watson
+Jared Piggy
+1
+edge
+Ace Watson
+Rasher Hamton
+1
+edge
+Ace Watson
+Karnac Wen
+1
+edge
+Ace Watson
+Zhu Stele
+1
+edge
+Ace Watson
+Sam Curlytail
+1
+edge
+Ace Watson
+Jodie Robinson
+1
+edge
+Ace Watson
+Napoleon Floyd
+1
+edge
+Jaimie Dengar
+Wibbly Bajie
+1
+edge
+Jaimie Dengar
+Oolong Danseur
+1
+edge
+Jaimie Dengar
+Fener Trwyth
+1
+edge
+Jaimie Dengar
+Boris Pig
+1
+edge
+Jaimie Dengar
+Pig Pork
+1
+edge
+Jaimie Dengar
+Peppa Hog
+1
+edge
+Jaimie Dengar
+Karnac Wen
+1
+edge
+Jaimie Dengar
+Zhu Stele
+1
+edge
+Jaimie Dengar
+Jodie Robinson
+1
+edge
+Jaimie Dengar
+Napoleon Floyd
+1
+edge
+Wibbly Bajie
+Pink Pigoon
+1
+edge
+Wibbly Bajie
+Oolong Danseur
+1
+edge
+Wibbly Bajie
+Rasher Hamton
+1
+edge
+Wibbly Bajie
+Karnac Wen
+1
+edge
+Wibbly Bajie
+Zhu Stele
+1
+edge
+Wibbly Bajie
+Sam Curlytail
+1
+edge
+Wibbly Bajie
+Jodie Robinson
+1
+edge
+Wibbly Bajie
+Napoleon Floyd
+1
+edge
+Pink Pigoon
+Oolong Danseur
+1
+edge
+Pink Pigoon
+Edessa Porker
+1
+edge
+Pink Pigoon
+Jared Piggy
+1
+edge
+Pink Pigoon
+Rasher Hamton
+1
+edge
+Pink Pigoon
+Zhu Stele
+1
+edge
+Pink Pigoon
+Jodie Robinson
+1
+edge
+Pink Pigoon
+Napoleon Floyd
+1
+edge
+Fener Trwyth
+Hamlet Hamilton
+1
+edge
+Fener Trwyth
+Toby Piggins
+1
+edge
+Fener Trwyth
+Grunty Dengar
+1
+edge
+Fener Trwyth
+Hogzilla Corpus
+1
+edge
+Fener Trwyth
+Pig Pork
+1
+edge
+Waddles Hog
+Hamlet Hamilton
+1
+edge
+Waddles Hog
+Grunty Dengar
+1
+edge
+Hamlet Hamilton
+Toby Piggins
+1
+edge
+Hamlet Hamilton
+Grunty Dengar
+1
+edge
+Toby Piggins
+Grunty Dengar
+1
+edge
+Grunty Dengar
+Hogzilla Corpus
+1
+edge
+Grunty Dengar
+Pig Pork
+1
+edge
+Grunty Dengar
+Napoleon Floyd
+1
+edge
+Hogzilla Corpus
+Pig Pork
+1
+edge
+Hogzilla Corpus
+Jodie Robinson
+1
+edge
+Hogzilla Corpus
+Napoleon Floyd
+1
+edge
+Boris Pig
+Pig Pork
+1
+edge
+Boris Pig
+Edessa Porker
+1
+edge
+Boris Pig
+Peppa Hog
+1
+edge
+Boris Pig
+Karnac Wen
+1
+edge
+Boris Pig
+Zhu Stele
+1
+edge
+Pig Pork
+Edessa Porker
+1
+edge
+Pig Pork
+Rasher Hamton
+1
+edge
+Pig Pork
+Karnac Wen
+1
+edge
+Pig Pork
+Zhu Stele
+1
+edge
+Pig Pork
+Jodie Robinson
+1
+edge
+Pig Pork
+Napoleon Floyd
+1
+edge
+Edessa Porker
+Jared Piggy
+1
+edge
+Edessa Porker
+Rasher Hamton
+1
+edge
+Edessa Porker
+Karnac Wen
+1
+edge
+Edessa Porker
+Zhu Stele
+1
+edge
+Jared Piggy
+Zhu Stele
+1
+edge
+Peppa Hog
+Karnac Wen
+1
+edge
+Rasher Hamton
+Karnac Wen
+1
+edge
+Rasher Hamton
+Zhu Stele
+1
+edge
+Rasher Hamton
+Sam Curlytail
+1
+edge
+Rasher Hamton
+Jodie Robinson
+1
+edge
+Rasher Hamton
+Napoleon Floyd
+1
+edge
+Karnac Wen
+Zhu Stele
+1
+edge
+Karnac Wen
+Sam Curlytail
+1
+edge
+Karnac Wen
+Jodie Robinson
+1
+edge
+Karnac Wen
+Napoleon Floyd
+1
+edge
+Zhu Stele
+Jodie Robinson
+1
+edge
+Zhu Stele
+Napoleon Floyd
+1
+edge
+Sam Curlytail
+Napoleon Floyd
+1
+edge
+Jodie Robinson
+Napoleon Floyd
+1
+end

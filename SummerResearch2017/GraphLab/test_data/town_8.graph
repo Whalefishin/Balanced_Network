@@ -1,0 +1,125 @@
+vertex
+Pigma's Jewelry Museum
+vertex
+Cerdotado's Candy City
+vertex
+Pigling Bland's Ice Cream Shack
+vertex
+Gaston's Office Supply Warehouse
+vertex
+Petunia's Bowling Town
+vertex
+Sam's Photo Retailer
+vertex
+Jimmy's Spa City
+vertex
+Arnold's Convenience Stand
+edge
+Pigma's Jewelry Museum
+Cerdotado's Candy City
+4
+edge
+Pigma's Jewelry Museum
+Pigling Bland's Ice Cream Shack
+18
+edge
+Pigma's Jewelry Museum
+Gaston's Office Supply Warehouse
+1
+edge
+Pigma's Jewelry Museum
+Petunia's Bowling Town
+1
+edge
+Pigma's Jewelry Museum
+Sam's Photo Retailer
+17
+edge
+Pigma's Jewelry Museum
+Jimmy's Spa City
+5
+edge
+Pigma's Jewelry Museum
+Arnold's Convenience Stand
+21
+edge
+Cerdotado's Candy City
+Pigling Bland's Ice Cream Shack
+19
+edge
+Cerdotado's Candy City
+Gaston's Office Supply Warehouse
+22
+edge
+Cerdotado's Candy City
+Petunia's Bowling Town
+5
+edge
+Cerdotado's Candy City
+Sam's Photo Retailer
+12
+edge
+Cerdotado's Candy City
+Jimmy's Spa City
+4
+edge
+Cerdotado's Candy City
+Arnold's Convenience Stand
+13
+edge
+Pigling Bland's Ice Cream Shack
+Gaston's Office Supply Warehouse
+28
+edge
+Pigling Bland's Ice Cream Shack
+Petunia's Bowling Town
+6
+edge
+Pigling Bland's Ice Cream Shack
+Sam's Photo Retailer
+33
+edge
+Pigling Bland's Ice Cream Shack
+Jimmy's Spa City
+23
+edge
+Pigling Bland's Ice Cream Shack
+Arnold's Convenience Stand
+33
+edge
+Gaston's Office Supply Warehouse
+Petunia's Bowling Town
+17
+edge
+Gaston's Office Supply Warehouse
+Sam's Photo Retailer
+23
+edge
+Gaston's Office Supply Warehouse
+Jimmy's Spa City
+31
+edge
+Petunia's Bowling Town
+Sam's Photo Retailer
+18
+edge
+Petunia's Bowling Town
+Jimmy's Spa City
+1
+edge
+Petunia's Bowling Town
+Arnold's Convenience Stand
+19
+edge
+Sam's Photo Retailer
+Jimmy's Spa City
+22
+edge
+Sam's Photo Retailer
+Arnold's Convenience Stand
+25
+edge
+Jimmy's Spa City
+Arnold's Convenience Stand
+13
+end

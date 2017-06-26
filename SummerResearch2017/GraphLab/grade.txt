@@ -1,0 +1,17 @@
+CS35 lab 09
+
+Score: 112/115
+
+tests passed
+valgrind passed
+
+railwayGame works as expected
+
+a lot of copy/paste code
+
+ if (player1)
+    code
+ else
+    copy of same code
+
+ make methods that take player pointer to reduce code complexity -3

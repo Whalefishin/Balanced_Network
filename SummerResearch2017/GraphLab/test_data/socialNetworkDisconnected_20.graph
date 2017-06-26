@@ -1,0 +1,237 @@
+vertex
+Kevin Bacon
+vertex
+Pansy Stele
+vertex
+Wilbur Dengar
+vertex
+Pigby Strangepork
+vertex
+Alexander Danseur
+vertex
+Cross-patch Iron
+vertex
+Freddy Wen
+vertex
+Toby Hog
+vertex
+Toot Piggy
+vertex
+Nanny Summer
+vertex
+Toot Bacon
+vertex
+Bebop Poppleton
+vertex
+Abner Corpus
+vertex
+Hogzilla Bland
+vertex
+Zhu Bland
+vertex
+Lester Arbuckle
+vertex
+Hamlet Pigasus
+vertex
+Piglet Corpus
+vertex
+Rooter Ziffel
+vertex
+Edessa Pork
+edge
+Kevin Bacon
+Pansy Stele
+1
+edge
+Kevin Bacon
+Wilbur Dengar
+1
+edge
+Kevin Bacon
+Pigby Strangepork
+1
+edge
+Kevin Bacon
+Alexander Danseur
+1
+edge
+Kevin Bacon
+Cross-patch Iron
+1
+edge
+Kevin Bacon
+Freddy Wen
+1
+edge
+Kevin Bacon
+Toby Hog
+1
+edge
+Kevin Bacon
+Nanny Summer
+1
+edge
+Pansy Stele
+Pigby Strangepork
+1
+edge
+Pansy Stele
+Alexander Danseur
+1
+edge
+Pansy Stele
+Cross-patch Iron
+1
+edge
+Pansy Stele
+Freddy Wen
+1
+edge
+Pansy Stele
+Toby Hog
+1
+edge
+Pansy Stele
+Toot Piggy
+1
+edge
+Pansy Stele
+Nanny Summer
+1
+edge
+Wilbur Dengar
+Pigby Strangepork
+1
+edge
+Wilbur Dengar
+Alexander Danseur
+1
+edge
+Wilbur Dengar
+Cross-patch Iron
+1
+edge
+Wilbur Dengar
+Freddy Wen
+1
+edge
+Wilbur Dengar
+Toby Hog
+1
+edge
+Wilbur Dengar
+Nanny Summer
+1
+edge
+Pigby Strangepork
+Cross-patch Iron
+1
+edge
+Pigby Strangepork
+Freddy Wen
+1
+edge
+Alexander Danseur
+Cross-patch Iron
+1
+edge
+Alexander Danseur
+Nanny Summer
+1
+edge
+Cross-patch Iron
+Freddy Wen
+1
+edge
+Toby Hog
+Toot Piggy
+1
+edge
+Toot Piggy
+Nanny Summer
+1
+edge
+Toot Bacon
+Bebop Poppleton
+1
+edge
+Toot Bacon
+Abner Corpus
+1
+edge
+Toot Bacon
+Hogzilla Bland
+1
+edge
+Toot Bacon
+Zhu Bland
+1
+edge
+Toot Bacon
+Lester Arbuckle
+1
+edge
+Toot Bacon
+Hamlet Pigasus
+1
+edge
+Bebop Poppleton
+Abner Corpus
+1
+edge
+Bebop Poppleton
+Zhu Bland
+1
+edge
+Abner Corpus
+Zhu Bland
+1
+edge
+Abner Corpus
+Lester Arbuckle
+1
+edge
+Hogzilla Bland
+Hamlet Pigasus
+1
+edge
+Hogzilla Bland
+Rooter Ziffel
+1
+edge
+Hogzilla Bland
+Zhu Bland
+1
+edge
+Hogzilla Bland
+Lester Arbuckle
+1
+edge
+Zhu Bland
+Lester Arbuckle
+1
+edge
+Zhu Bland
+Hamlet Pigasus
+1
+edge
+Lester Arbuckle
+Hamlet Pigasus
+1
+edge
+Hamlet Pigasus
+Rooter Ziffel
+1
+edge
+Piglet Corpus
+Rooter Ziffel
+1
+edge
+Piglet Corpus
+Edessa Pork
+1
+edge
+Rooter Ziffel
+Edessa Pork
+1
+end
