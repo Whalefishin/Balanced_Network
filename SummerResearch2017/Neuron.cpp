@@ -13,7 +13,7 @@ using namespace std;
 
 
 Neuron::Neuron(int number, string population, double K,
-  double externalRateFactor){
+  double externalRateFactor, double phi, double lamba){
   this->number = number;
   this->population = population;
   this->externalRateFactor = externalRateFactor;
@@ -23,10 +23,15 @@ Neuron::Neuron(int number, string population, double K,
   last_update_time = 0;
   current_spike_time =0;
   stateSum=0;
-  decay_constant = 1;
   threshold_at_last_spike = 0;
-  adapation_jump = 0.3;
 
+  //constant adapation_jump
+  //adaptation_jump = 0.3;
+  //decay_constant = 0.01;
+
+  //get adaptation constants as parameters
+  decay_constant = lamba;
+  adaptation_jump = phi;
 
   // randomly generate delta in (0,1)
   double r = ((double)rand()/(double)RAND_MAX);
@@ -44,6 +49,9 @@ Neuron::Neuron(int number, string population, double K,
     externalInput = externalRateFactor*0.8*m_0*sqrt(K);
     tau = 0.9;
   }
+  //jump as a percentage of the original_threshold
+  //adaptation_jump = 0.3*threshold;
+  //decay_constant = 0.01*tau;
 
     state = 0;
     previous_state = 0;
@@ -86,7 +94,7 @@ void Neuron::updateThresholdSmooth(double currentTime){
       exp(-decay_constant*ISI_data.back()) +
       original_threshold;
     }
-      threshold += adapation_jump;
+      threshold += adaptation_jump;
       threshold_at_last_spike = threshold;
       //record
       thresholdVector.push_back(threshold);
@@ -109,7 +117,7 @@ void Neuron::updateThresholdDiscrete(double currentTime, double timeElapsed){
   else if (currentTime == last_spike_time){
     threshold = original_threshold + (threshold-
     original_threshold)*exp(-decay_constant*timeElapsed);
-    threshold += adapation_jump;
+    threshold += adaptation_jump;
     thresholdVector.push_back(threshold);
   }
   else if (currentTime != last_spike_time){

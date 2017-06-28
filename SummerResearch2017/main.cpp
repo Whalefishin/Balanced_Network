@@ -7,9 +7,9 @@
 
 #include "Balanced_Network.h"
 #include "GraphLab/stl/stlHashTable.h"
-#include "Neuron.h"
+//#include "Neuron.h"
 #include "stdlib.h"
-#include "Statistics.h"
+//#include "Statistics.h"
 
 
 using namespace std;
@@ -28,9 +28,13 @@ const double J_EI = -2;
 const double J_IE = 1;
 const double J_II = -1.8;
 
-const int update_steps = 300000;
-const int update_times_for_EM = 1;
+const int update_steps = 1;
+const int update_times_for_EM = 150000;
 
+const double externalRateFactor = 1;
+
+const double adaptation_jump = 0.3;
+const double decay_constant = 0.01;
 
 
 //If you wish to change the neuronal constants, you have to
@@ -44,23 +48,24 @@ double Num_All_Neurons = Num_Excitatory_Neurons + Num_Inhibitory_Neurons;
 
 
 Balanced_Network* neural_network =
-new Balanced_Network(Num_Excitatory_Neurons,Num_Inhibitory_Neurons, K, 1);
+new Balanced_Network(Num_Excitatory_Neurons,Num_Inhibitory_Neurons, K,
+  externalRateFactor,adaptation_jump,decay_constant);
 
 neural_network->initializeJmatrix(J_EE, J_EI, J_IE, J_II);
 
 neural_network->establishConnections();
 
-//choose a random Neuron to record
-Neuron* neuron_to_record = neural_network->chooseRandomNeuron();
-
-cout<< "The neuron we choose to record is:" +
-to_string(neuron_to_record->number) + neuron_to_record->population << endl;
-
-
 
 double** J = neural_network->getJmatrix();
 vector<Neuron*> nVector = neural_network->neuron_Vector;
+//choose a random Neuron to record
+//Neuron* neuron_to_record = neural_network->chooseRandomNeuron();
 
+//manually choose 200I to record
+Neuron* neuron_to_record = neural_network->neuron_Vector.back();
+
+cout<< "The neuron we choose to record is:" +
+to_string(neuron_to_record->number) + neuron_to_record->population << endl;
 
 
 
@@ -122,12 +127,17 @@ for (int i=0;i<nVector.size();i++){
 vector<pair<double,double>> exc_mean = neural_network->getExcMeanAtv();
 vector<pair<double,double>> inh_mean = neural_network->getInhMeanAtv();
 
-/*
-for (int i=0;i<exc_mean.size();i++){
 
-}
-*/
+//Mean threshold
 
+vector<pair<double,double>> exc_mean_threshold = neural_network->getMeanExcThresholdTimeSeries();
+vector<pair<double,double>> inh_mean_threshold = neural_network->getMeanInhThresholdTimeSeries();
+
+
+
+//Adaptation Gain - Lamba vs. EI ratios
+vector<double> lambaVector;
+vector<double> meanEIratioVector;
 
 
 
@@ -139,11 +149,12 @@ vector<pair<double,double>> EM_dataVector_inhibitory;
 
 vector<Balanced_Network*> Collection;
 
-for (int i=1;i<=15;i++){
-  srand(4);
+for (int i=1;i<=10;i++){
+  srand(6);
   // double r=((double)rand()/(double)RAND_MAX);
   Balanced_Network* toInsert = new
-  Balanced_Network(Num_Excitatory_Neurons,Num_Inhibitory_Neurons, K, i*0.01);
+  Balanced_Network(Num_Excitatory_Neurons,Num_Inhibitory_Neurons, K,
+    externalRateFactor, adaptation_jump,i*0.01);
   toInsert->initializeJmatrix(J_EE, J_EI, J_IE, J_II);
   toInsert->establishConnections();
   Collection.push_back(toInsert);
@@ -164,20 +175,28 @@ for (int i=0;i<10;i++){
 
 
 //the second way of computing the mean activity
-for (int i=0;i<15;i++){
+for (int i=0;i<10;i++){
   for (int j=0;j<update_times_for_EM;j++){
-    Collection[i]->update3();
+    //Population gain
+    //Collection[i]->update3();
+
+    //Adaptation Gain - Lamba vs. EI ratios
+    Neuron* temp = Collection[i]->chooseRandomNeuron();
+    Collection[i]->update(temp);
   }
+  //pop gain
+  /*
   pair<double,double> dataPointExc = Collection[i]->getEM_data_exc2();
   pair<double,double> dataPointInh = Collection[i]->getEM_data_inh2();
   EM_dataVector_excitatory.push_back(dataPointExc);
   EM_dataVector_inhibitory.push_back(dataPointInh);
+  */
+
+  //Adaptation Gain - Lamba vs. EI ratios
+  Collection[i]->addEI_Ratios();
+  lambaVector.push_back(Collection[i]->lamba);
+  meanEIratioVector.push_back(mean(Collection[i]->getEI_Ratios()));
 }
-
-
-cout << "exc vector size is: " + to_string(EM_dataVector_excitatory.size()) << endl;
-cout << "inh vector size is: " + to_string(EM_dataVector_inhibitory.size()) << endl;
-
 
 
 //Outputting.
@@ -206,6 +225,14 @@ ofstream spikeTimesTxt("Spike_times.txt");
 
 ofstream parametersTxt("Parameters.txt");
 
+ofstream excMeanThresholdTxt("Exc_Mean_Threshold.txt");
+ofstream excThresTimeTxt("Exc_Thres_Time.txt");
+ofstream inhMeanThresholdTxt("Inh_Mean_Threshold.txt");
+ofstream inhThresTimeTxt("Inh_Thres_Time.txt");
+
+ofstream adaptationGainTxt1("Adaptation_lamba.txt");
+ofstream adaptationGainTxt2("Adaptation_EI_Ratios.txt");
+
 //Inputs
 //format: time, total input, excitatory input, inhibitory input
 for (int i=0;i<totTimeSeries.size();i++){
@@ -215,8 +242,8 @@ for (int i=0;i<totTimeSeries.size();i++){
 timeSeriesTxt3 << to_string(excTimeSeries[i].second)
 << endl;
 timeSeriesTxt4 << to_string(inhTimeSeries[i].second) << endl;
-
 }
+
 
 
 //EI ratios
@@ -261,6 +288,26 @@ for (int i=0;i<neuron_to_record->spike_times.size();i++){
   spikeTimesTxt << neuron_to_record->spike_times[i] << endl;
 }
 
+//Mean Threshold
+for (int i=0;i<exc_mean_threshold.size();i++){
+  excThresTimeTxt << exc_mean_threshold[i].first << endl;
+  excMeanThresholdTxt << exc_mean_threshold[i].second
+  /Num_Excitatory_Neurons << endl;
+}
+
+for(int i=0;i<inh_mean_threshold.size();i++){
+  inhThresTimeTxt << inh_mean_threshold[i].first << endl;
+  inhMeanThresholdTxt << inh_mean_threshold[i].second
+  /Num_Inhibitory_Neurons << endl;
+}
+
+
+//Adaptation Gain - Lamba vs. EI ratios
+for (int i=0;i<lambaVector.size();i++){
+  adaptationGainTxt1 << lambaVector[i] << endl;
+  adaptationGainTxt2 << meanEIratioVector[i] << endl;
+}
+
 
 //parameters
 parametersTxt << "This trial run has the following parameters: " << endl;
@@ -269,12 +316,14 @@ parametersTxt << "Neuron ratios(Exc/Inh): " + to_string(Num_Excitatory_Neurons/N
 parametersTxt << "K: " + to_string(K) << endl;
 parametersTxt << "m_0: " + to_string(nVector[0]->m_0) << endl;
 parametersTxt << "Number of updates: " + to_string(update_steps) <<endl;
-parametersTxt << "Adaptation Jump: " + to_string(nVector[0]->adapation_jump) << endl;
+parametersTxt << "Adaptation Jump: " + to_string(nVector[0]->adaptation_jump) << endl;
 parametersTxt << "Lamba: " + to_string(nVector[0]->decay_constant) << endl;
 
 
 
-
+cout << "The first entries should be: lamba = "
++ to_string(neural_network->lamba) + "meanEIRatio = " +
+to_string(mean(neural_network->getEI_Ratios())) << endl;
 
 
 

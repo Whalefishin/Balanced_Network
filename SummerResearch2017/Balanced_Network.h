@@ -10,13 +10,15 @@
 #include "GraphLab/adjacencyListGraph.h"
 #include "Neuron.h"
 #include "GraphLab/stl/stlPriorityQueue.h"
+#include "Statistics.h"
 
 using namespace std;
 
 class Balanced_Network{
 
 public:
-  Balanced_Network(double N_E, double N_I, double K, double externalRateFactor);
+  Balanced_Network(double N_E, double N_I, double K,
+     double externalRateFactor, double phi, double lamba);
 
   ~Balanced_Network();
 
@@ -51,11 +53,13 @@ public:
   pair<double,double> getEM_data_exc2();
   pair<double,double> getEM_data_inh2();
 
+  double getMeanInhThreshold();
+  double getMeanExcThreshold();
 
-  //gets the time vector, the collection of times for which
-  //a neuron is updated.
-  //Not actually used in the main.
-  //vector<double> getTime_Vector();
+  vector<pair<double,double>> getMeanExcThresholdTimeSeries();
+  vector<pair<double,double>> getMeanInhThresholdTimeSeries();
+
+
 
   //gets the PQ for the update method.
   //For debugging purpose mostly, can saftely ignore.
@@ -134,6 +138,9 @@ public:
 
   vector<Neuron*> neuron_Vector;
 
+  double lamba;
+  double phi;
+
 
 private:
   //helper methods
@@ -174,4 +181,8 @@ private:
   double excUpdateCount =0;
   double inhUpdateCount =0;
   int num_update_done;
+
+  //Threshold Adaptation recording
+  vector<pair<double,double>> meanExcThresholdTimeSeries;
+  vector<pair<double,double>> meanInhThresholdTimeSeries;
 };

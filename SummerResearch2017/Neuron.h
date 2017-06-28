@@ -10,7 +10,8 @@ using namespace std;
 
 class Neuron{
 public:
-  Neuron(int number, string population, double K, double externalRateFactor);
+  Neuron(int number, string population, double K,
+    double externalRateFactor, double phi, double lamba);
 
   void addInputData(pair<double,double> totalInput,
     pair<double,double> excitatoryInput, pair<double,double> inhibitoryInput);
@@ -66,7 +67,7 @@ public:
 
   //Spike Frequency adapation stuff
   double decay_constant;
-  double adapation_jump;
+  double adaptation_jump;
   double original_threshold;
   //double decay_time_constant;
 

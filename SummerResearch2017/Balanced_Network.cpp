@@ -11,7 +11,7 @@ using namespace std;
 
 
 Balanced_Network::Balanced_Network(double N_E, double N_I, double K,
-double externalRateFactor){
+double externalRateFactor, double phi, double lamba){
 //  srand(1);
 
   time = 0;
@@ -23,15 +23,16 @@ double externalRateFactor){
   this->N_I = N_I;
   this->K = K;
   this->externalRateFactor = externalRateFactor;
+  this->lamba = lamba;
 
   for (int i=1;i<=N_E;i++){
-    Neuron* n = new Neuron(i,"E",K,externalRateFactor);
+    Neuron* n = new Neuron(i,"E",K,externalRateFactor,phi,lamba);
     network->insertVertex(n);
     neuron_Vector.push_back(n);
   }
 
   for (int i=1;i<=N_I;i++){
-    Neuron* n = new Neuron(i,"I",K,externalRateFactor);
+    Neuron* n = new Neuron(i,"I",K,externalRateFactor,phi,lamba);
     network->insertVertex(n);
     neuron_Vector.push_back(n);
   }
@@ -67,6 +68,13 @@ double externalRateFactor){
   inhibitoryActivityTimeSeries.push_back(inhData);
   cout << "Initial active exc: " + to_string(excAtvCount) << endl;
   cout << "Initial active inh: " + to_string(inhAtvCount) << endl;
+
+  //mean Threshold stuff
+  pair<double,double> excThresholdData(0,N_E*1);
+  pair<double,double> inhThresholdData(0,N_I*0.7);
+  meanExcThresholdTimeSeries.push_back(excThresholdData);
+  meanInhThresholdTimeSeries.push_back(inhThresholdData);
+
 
 
 //neuron_Vector testing stuff
@@ -177,7 +185,7 @@ pair<double,double> Balanced_Network::getEM_data_exc2(){
   for (int i=1600;i< excitatoryActivityTimeSeries.size();i++){
     excStateSum +=excitatoryActivityTimeSeries[i].second;
   }
-  cout << excStateSum << endl;
+  //cout << excStateSum << endl;
   toReturn.second = excStateSum/N_E/(excUpdateCount-1600);
   return toReturn;
 }
@@ -192,6 +200,30 @@ pair<double,double> Balanced_Network::getEM_data_inh2(){
   cout << inhStateSum << endl;
   toReturn.second = inhStateSum/N_I/(inhUpdateCount-400);
   return toReturn;
+}
+
+double Balanced_Network::getMeanExcThreshold(){
+  vector<double> thresholds;
+  for(int i=0;i<meanExcThresholdTimeSeries.size();i++){
+    thresholds.push_back(meanExcThresholdTimeSeries[i].second);
+  }
+  return mean(thresholds);
+}
+
+double Balanced_Network::getMeanInhThreshold(){
+  vector<double> thresholds;
+  for(int i=0;i<meanInhThresholdTimeSeries.size();i++){
+    thresholds.push_back(meanInhThresholdTimeSeries[i].second);
+  }
+  return mean(thresholds);
+}
+
+vector<pair<double,double>> Balanced_Network::getMeanExcThresholdTimeSeries(){
+  return meanExcThresholdTimeSeries;
+}
+
+vector<pair<double,double>> Balanced_Network::getMeanInhThresholdTimeSeries(){
+  return meanInhThresholdTimeSeries;
 }
 
 /*
@@ -209,12 +241,12 @@ void Balanced_Network::addNeurons(int N_E, int N_I){
   this->N_I = this->N_I + N_I;
 
   for (int i=1;i<=N_E;i++){
-    Neuron* n = new Neuron(i,"E",K,externalRateFactor);
+    Neuron* n = new Neuron(i,"E",K,externalRateFactor,phi,lamba);
     network->insertVertex(n);
   }
 
   for (int i=1;i<=N_I;i++){
-    Neuron* n = new Neuron(i,"I",K,externalRateFactor);
+    Neuron* n = new Neuron(i,"I",K,externalRateFactor,phi,lamba);
     network->insertVertex(n);
   }
 
@@ -399,6 +431,18 @@ void Balanced_Network::update(Neuron* neuron_to_record){
     minimum_time_queue->insert((-1*neuron_to_update->time_to_be_updated),neuron_to_update);
 
 
+    //for mean Threshold
+    if (neuron_to_update->population == "E"){
+      pair<double,double> dataToPush(time,
+        meanExcThresholdTimeSeries.back().second - neuron_to_update->threshold);
+        meanExcThresholdTimeSeries.push_back(dataToPush);
+    }
+    else {
+      pair<double,double> dataToPush(time,
+        meanInhThresholdTimeSeries.back().second - neuron_to_update->threshold);
+        meanInhThresholdTimeSeries.push_back(dataToPush);
+    }
+
     //ISI stuff
     if (neuron_to_update->previous_state ==0 &&
     neuron_to_update->state ==1){
@@ -421,6 +465,15 @@ void Balanced_Network::update(Neuron* neuron_to_record){
     //SFA stuff
     neuron_to_update->updateThresholdDiscrete(time, timeElapsed);
     neuron_to_update->last_update_time = time;
+
+
+    //for mean Threshold
+    if (neuron_to_update->population == "E"){
+      meanExcThresholdTimeSeries.back().second += neuron_to_update->threshold;
+    }
+    else {
+      meanInhThresholdTimeSeries.back().second += neuron_to_update->threshold;
+    }
 
 
     //Mean Activity stuff
