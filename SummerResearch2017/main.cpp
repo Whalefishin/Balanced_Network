@@ -28,13 +28,13 @@ const double J_EI = -2;
 const double J_IE = 1;
 const double J_II = -1.8;
 
-const int update_steps = 120000;
+const int update_steps = 50000;
 const int update_times_for_EM = 1;
 
 const double externalRateFactor = 1;
 
 const double adaptation_jump = 0.3;
-const double decay_constant = 0.005;
+const double decay_constant = 0.01;
 
 
 //If you wish to change the neuronal constants, you have to
@@ -63,6 +63,7 @@ Neuron* neuron_to_record = neural_network->chooseRandomNeuron();
 
 //manually choose 200I to record
 //Neuron* neuron_to_record = neural_network->neuron_Vector.back();
+//Neuron* neuron_to_record = nVector[94];
 
 cout<< "The neuron we choose to record is:" +
 to_string(neuron_to_record->number) + neuron_to_record->population << endl;
@@ -299,8 +300,8 @@ for (int i=0;i<EM_dataVector_excitatory.size();i++){
 
 //Threshold
 //each data correspond to the threshold at the times in Time.txt
-for (int i=0;i<nVector[94]->thresholdVector.size();i++){
-  thresholdTxt << nVector[94]->thresholdVector[i] << endl;
+for (int i=0;i<neuron_to_record->thresholdVector.size();i++){
+  thresholdTxt << neuron_to_record->thresholdVector[i] << endl;
 }
 
 //spike times
@@ -358,6 +359,35 @@ parametersTxt << "m_0: " + to_string(nVector[0]->m_0) << endl;
 parametersTxt << "Number of updates: " + to_string(update_steps) <<endl;
 parametersTxt << "Adaptation Jump: " + to_string(nVector[0]->adaptation_jump) << endl;
 parametersTxt << "Lamba: " + to_string(nVector[0]->decay_constant) << endl;
+
+
+
+
+//Testing out 95E
+
+vector<Edge<Neuron*,string,double>> incomingConnections =
+neural_network->getIncomingConnections(nVector[911]);
+
+cout << "Size is: " + to_string(incomingConnections.size()) << endl;
+
+int inhSum=0;
+int excSum=0;
+
+for (int i=0;i<incomingConnections.size();i++){
+  Neuron* incoming_neuron = incomingConnections[i].source;
+  if (incoming_neuron->population == "I" ){
+    inhSum++;
+  }
+  if (incoming_neuron->population == "E"){
+    excSum++;
+  }
+  cout << to_string(incoming_neuron->number) +
+  incoming_neuron->population << endl;
+}
+
+cout << "Exc count: " + to_string(excSum) << endl;
+cout << "Inh count: " + to_string(inhSum) << endl;
+
 
 
 

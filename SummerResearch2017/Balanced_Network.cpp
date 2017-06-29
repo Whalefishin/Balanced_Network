@@ -491,6 +491,7 @@ void Balanced_Network::update(Neuron* neuron_to_record){
 
     checkActiveNeurons(99,100);
 
+    //cout << neuron_Vector[94]->state << endl;
     //Mean Activity stuff
     //this says "if the updated neuron went from rest to active"
     if (neuron_to_update->previous_state ==0 &&
