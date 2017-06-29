@@ -24,6 +24,7 @@ double externalRateFactor, double phi, double lamba){
   this->K = K;
   this->externalRateFactor = externalRateFactor;
   this->lamba = lamba;
+  this->phi = phi;
 
   for (int i=1;i<=N_E;i++){
     Neuron* n = new Neuron(i,"E",K,externalRateFactor,phi,lamba);
@@ -364,6 +365,19 @@ double Balanced_Network::Heaviside(double value){
   }
 }
 
+void Balanced_Network::checkActiveNeurons(double startTime, double endTime){
+  if (time > startTime && time < endTime){
+    //scan all the neurons and see which ones are active
+    vector<Neuron*> nVector;
+    for (int i=0;i<neuron_Vector.size();i++){
+      if (neuron_Vector[i]->state == 1){
+        nVector.push_back(neuron_Vector[i]);
+      }
+    }
+    pair<double, vector<Neuron*>> toAdd(time,nVector);
+    activeNeurons.push_back(toAdd);
+  }
+}
 
 void Balanced_Network::update(Neuron* neuron_to_record){
   if (neuron_Vector.size()==0){
@@ -475,6 +489,7 @@ void Balanced_Network::update(Neuron* neuron_to_record){
       meanInhThresholdTimeSeries.back().second += neuron_to_update->threshold;
     }
 
+    checkActiveNeurons(99,100);
 
     //Mean Activity stuff
     //this says "if the updated neuron went from rest to active"

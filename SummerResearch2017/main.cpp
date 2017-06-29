@@ -28,13 +28,13 @@ const double J_EI = -2;
 const double J_IE = 1;
 const double J_II = -1.8;
 
-const int update_steps = 1;
-const int update_times_for_EM = 150000;
+const int update_steps = 120000;
+const int update_times_for_EM = 1;
 
 const double externalRateFactor = 1;
 
 const double adaptation_jump = 0.3;
-const double decay_constant = 0.01;
+const double decay_constant = 0.005;
 
 
 //If you wish to change the neuronal constants, you have to
@@ -59,10 +59,10 @@ neural_network->establishConnections();
 double** J = neural_network->getJmatrix();
 vector<Neuron*> nVector = neural_network->neuron_Vector;
 //choose a random Neuron to record
-//Neuron* neuron_to_record = neural_network->chooseRandomNeuron();
+Neuron* neuron_to_record = neural_network->chooseRandomNeuron();
 
 //manually choose 200I to record
-Neuron* neuron_to_record = neural_network->neuron_Vector.back();
+//Neuron* neuron_to_record = neural_network->neuron_Vector.back();
 
 cout<< "The neuron we choose to record is:" +
 to_string(neuron_to_record->number) + neuron_to_record->population << endl;
@@ -140,6 +140,9 @@ vector<double> lambaVector;
 vector<double> meanEIratioVector;
 
 
+//Adaptation Gain - Phi vs. EI ratios
+vector<double> phiVector;
+
 
 //External Input vs. Mean Atv
 
@@ -193,45 +196,62 @@ for (int i=0;i<10;i++){
   */
 
   //Adaptation Gain - Lamba vs. EI ratios
+
   Collection[i]->addEI_Ratios();
   lambaVector.push_back(Collection[i]->lamba);
   meanEIratioVector.push_back(mean(Collection[i]->getEI_Ratios()));
+
+
+
+  //Adaptation Gain - Phi vs. EI ratios
+  /*
+  Collection[i]->addEI_Ratios();
+  phiVector.push_back(Collection[i]->phi);
+  meanEIratioVector.push_back(mean(Collection[i]->getEI_Ratios()));
+  */
 }
 
 
+cout << "phiVector size is: " + to_string(phiVector.size()) << endl;
+
 //Outputting.
 
-ofstream timeSeriesTxt1("Time.txt");
-ofstream timeSeriesTxt2("TotalInput.txt");
-ofstream timeSeriesTxt3("ExcitatoryInput.txt");
-ofstream timeSeriesTxt4("InhibitoryInput.txt");
+ofstream timeSeriesTxt1("Data/Time.txt");
+ofstream timeSeriesTxt2("Data/TotalInput.txt");
+ofstream timeSeriesTxt3("Data/ExcitatoryInput.txt");
+ofstream timeSeriesTxt4("Data/InhibitoryInput.txt");
 
-ofstream EIRatiosTxt("EI_ratios.txt");
+ofstream EIRatiosTxt("Data/EI_ratios.txt");
 
-ofstream CVTxt("ISI_CV.txt");
+ofstream CVTxt("Data/ISI_CV.txt");
 
-ofstream excMean_ActivityTxt("Exc_Mean_Activity.txt");
-ofstream excTimeTxt("Exc_Time.txt");
-ofstream inhMean_ActivityTxt("Inh_Mean_Activity.txt");
-ofstream inhTimeTxt("Inh_Time.txt");
+ofstream excMean_ActivityTxt("Data/Exc_Mean_Activity.txt");
+ofstream excTimeTxt("Data/Exc_Time.txt");
+ofstream inhMean_ActivityTxt("Data/Inh_Mean_Activity.txt");
+ofstream inhTimeTxt("Data/Inh_Time.txt");
 
-ofstream excEMAtvTxt("Exc_EM_activity.txt");
-ofstream excEMRateTxt("Exc_EM_external_rate.txt");
-ofstream inhEMAtvtxt("Inh_EM_activity.txt");
-ofstream inhEMRateTxt("Inh_EM_external_rate.txt");
+ofstream excEMAtvTxt("Data/Exc_EM_activity.txt");
+ofstream excEMRateTxt("Data/Exc_EM_external_rate.txt");
+ofstream inhEMAtvtxt("Data/Inh_EM_activity.txt");
+ofstream inhEMRateTxt("Data/Inh_EM_external_rate.txt");
 
-ofstream thresholdTxt("Threshold.txt");
-ofstream spikeTimesTxt("Spike_times.txt");
+ofstream thresholdTxt("Data/Threshold.txt");
+ofstream spikeTimesTxt("Data/Spike_times.txt");
 
-ofstream parametersTxt("Parameters.txt");
+ofstream parametersTxt("Data/Parameters.txt");
 
-ofstream excMeanThresholdTxt("Exc_Mean_Threshold.txt");
-ofstream excThresTimeTxt("Exc_Thres_Time.txt");
-ofstream inhMeanThresholdTxt("Inh_Mean_Threshold.txt");
-ofstream inhThresTimeTxt("Inh_Thres_Time.txt");
+ofstream excMeanThresholdTxt("Data/Exc_Mean_Threshold.txt");
+ofstream excThresTimeTxt("Data/Exc_Thres_Time.txt");
+ofstream inhMeanThresholdTxt("Data/Inh_Mean_Threshold.txt");
+ofstream inhThresTimeTxt("Data/Inh_Thres_Time.txt");
 
-ofstream adaptationGainTxt1("Adaptation_lamba.txt");
-ofstream adaptationGainTxt2("Adaptation_EI_Ratios.txt");
+ofstream adaptationGainTxt1("Data/Adaptation_lamba.txt");
+ofstream adaptationGainTxt2("Data/Adaptation_EI_Ratios.txt");
+ofstream adaptationGainTxt3("Data/Adaptation_Phi.txt");
+
+ofstream plateauTimeTxt("Data/Plateau_Times.txt");
+ofstream plateauNeuronsTxt("Data/Plateau_Neurons.txt");
+
 
 //Inputs
 //format: time, total input, excitatory input, inhibitory input
@@ -279,8 +299,8 @@ for (int i=0;i<EM_dataVector_excitatory.size();i++){
 
 //Threshold
 //each data correspond to the threshold at the times in Time.txt
-for (int i=0;i<neuron_to_record->thresholdVector.size();i++){
-  thresholdTxt << neuron_to_record->thresholdVector[i] << endl;
+for (int i=0;i<nVector[94]->thresholdVector.size();i++){
+  thresholdTxt << nVector[94]->thresholdVector[i] << endl;
 }
 
 //spike times
@@ -303,11 +323,31 @@ for(int i=0;i<inh_mean_threshold.size();i++){
 
 
 //Adaptation Gain - Lamba vs. EI ratios
+
 for (int i=0;i<lambaVector.size();i++){
   adaptationGainTxt1 << lambaVector[i] << endl;
   adaptationGainTxt2 << meanEIratioVector[i] << endl;
 }
 
+
+//Adaptation Gain - Phi vs. EI ratios
+for (int i=0;i<phiVector.size();i++){
+  adaptationGainTxt3 << phiVector[i]<< endl;
+  adaptationGainTxt2 << meanEIratioVector[i] << endl;
+}
+
+
+//Investigate plateau region
+for (int i=0;i<neural_network->activeNeurons.size();i++){
+  plateauTimeTxt << neural_network->activeNeurons[i].first << endl;
+  plateauNeuronsTxt << to_string(i) << endl;
+  plateauNeuronsTxt << " " << endl;
+  vector<Neuron*> temp = neural_network->activeNeurons[i].second;
+  for (int j=0;j<temp.size();j++){
+    plateauNeuronsTxt << to_string(temp[j]->number) + temp[j]->population
+    << endl;
+  }
+}
 
 //parameters
 parametersTxt << "This trial run has the following parameters: " << endl;
@@ -321,10 +361,38 @@ parametersTxt << "Lamba: " + to_string(nVector[0]->decay_constant) << endl;
 
 
 
-cout << "The first entries should be: lamba = "
+//see if neurons are connected
+/*
+if (neural_network->isConnected(nVector[94],nVector[760])){
+  cout << "95E -> 761E" << endl;
+}
+
+if (neural_network->isConnected(nVector[760],nVector[94])){
+  cout << "95E <- 761E" << endl;
+}
+
+if (neural_network->isConnected(nVector[760],nVector[912])){
+  cout << "113I <- 761E" << endl;
+}
+
+if (neural_network->isConnected(nVector[912],nVector[760])){
+  cout << "113I -> 761E" << endl;
+}
+
+if (neural_network->isConnected(nVector[94],nVector[912])){
+  cout << "113I <- 95E" << endl;
+}
+
+if (neural_network->isConnected(nVector[912],nVector[94])){
+  cout << "113I -> 95E" << endl;
+}
+*/
+
+/*
+cout << "One of the entries should be: lamba = "
 + to_string(neural_network->lamba) + "meanEIRatio = " +
 to_string(mean(neural_network->getEI_Ratios())) << endl;
-
+*/
 
 
 

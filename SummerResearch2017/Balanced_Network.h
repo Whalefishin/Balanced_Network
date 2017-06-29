@@ -122,6 +122,10 @@ public:
   //0 otherwise
   double Heaviside(double value);
 
+
+  //update the
+  void checkActiveNeurons(double startTime, double endTime);
+
   //Update the network once
   //We can change the neuron_to_record to a vector of neurons
   void update(Neuron* neuron_to_record);
@@ -140,6 +144,10 @@ public:
 
   double lamba;
   double phi;
+
+  //at time pair.first, we have the active neurons
+  //to be the pair.second
+  vector<pair<double,vector<Neuron*>>> activeNeurons;
 
 
 private:

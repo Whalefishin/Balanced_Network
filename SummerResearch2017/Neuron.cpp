@@ -29,10 +29,6 @@ Neuron::Neuron(int number, string population, double K,
   //adaptation_jump = 0.3;
   //decay_constant = 0.01;
 
-  //get adaptation constants as parameters
-  decay_constant = lamba;
-  adaptation_jump = phi;
-
   // randomly generate delta in (0,1)
   double r = ((double)rand()/(double)RAND_MAX);
   delta = r;
@@ -53,6 +49,12 @@ Neuron::Neuron(int number, string population, double K,
   //adaptation_jump = 0.3*threshold;
   //decay_constant = 0.01*tau;
 
+
+  //get adaptation constants as parameters
+  decay_constant = lamba*tau;
+  adaptation_jump = phi*threshold;
+
+
     state = 0;
     previous_state = 0;
     totalExcitatoryInput =0;
@@ -70,9 +72,11 @@ void Neuron::addInputData(pair<double,double> totalInput,
   inhibitoryInput_timeSeries.push_back(inhibitoryInput);
 }
 
+
 void Neuron::update_time_to_be_updated(){
   time_to_be_updated+=tau;
 }
+
 
 void Neuron::fire(){
   state = 1;
