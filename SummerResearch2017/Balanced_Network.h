@@ -7,7 +7,7 @@
 #include <vector>
 #include <utility>
 
-#include "GraphLab/adjacencyListGraph.h"
+//#include "GraphLab/adjacencyListGraph.h"
 #include "Neuron.h"
 #include "GraphLab/stl/stlPriorityQueue.h"
 #include "Statistics.h"
@@ -70,7 +70,7 @@ public:
 
   //adds N_E excitatory neurons and N_I inhibitory neurons
   //into the network.
-  void addNeurons(int N_E, int N_I);
+  //void addNeurons(int N_E, int N_I);
 
   //check if a neuron is in the network, returns true iff it is.
   bool containsNeuron(Neuron* n);
@@ -80,7 +80,7 @@ public:
 
   //get all the neurons in the network and put them into a
   //vector
-  vector<Neuron*> getNeurons();
+  //vector<Neuron*> getNeurons();
 
 
 
@@ -89,19 +89,19 @@ public:
   //insert a connection between two neurons.
   //paramaters: the source and target neuron, the label (can just be
   //empty), and the connection strength.
-  void insertConnection(Neuron* source, Neuron* target, string label, double strength);
+  //void insertConnection(Neuron* source, Neuron* target, string label, double strength);
 
   //remove a connection between two neurons
-  void removeConnection(Neuron* source, Neuron* target);
+  //void removeConnection(Neuron* source, Neuron* target);
 
   //check if two neurons are connected.
   //returns true iff there is a connection established
   //from the source neuron onto the target neuron.
-  bool isConnected(Neuron* source, Neuron* target);
+  //bool isConnected(Neuron* source, Neuron* target);
 
   //get all the incoming connections to a neuron (all the
   //connections with that neuron as the target)
-  vector<Edge<Neuron*,string,double> > getIncomingConnections(Neuron* n);
+  //vector<Edge<Neuron*,string,double> > getIncomingConnections(Neuron* n);
 
 
   //Initialization methods
@@ -116,7 +116,7 @@ public:
   //establish connections between neurons based on the J matrix.
   //on average, each neuron should have incoming connections
   //from K excitatory and K inhibitory neurons.
-  void establishConnections();
+  //void establishConnections();
 
   //The Heaviside function, returns 1 if the input value >0,
   //0 otherwise
@@ -152,8 +152,8 @@ public:
 
 private:
   //helper methods
-  void insertNeuron(Neuron* n);
-  void removeNeuron(Neuron* n);
+  //void insertNeuron(Neuron* n);
+  //void removeNeuron(Neuron* n);
   void record(pair<double,double> totalInput_data, pair<double,double> excitatoryInput_data,
     pair<double,double> inhibitoryInput_data, Neuron* neuron_to_record);
 
@@ -161,8 +161,9 @@ private:
   void deleteNeurons();
   void deleteJmatrix();
 
-  Graph<Neuron*,string,double>* network;
+  //Graph<Neuron*,string,double>* network;
   double** Jmatrix;
+  vector<vector<Neuron*>> adjacencyList;
 
 
   //The number of excitatory and inhibitory neurons

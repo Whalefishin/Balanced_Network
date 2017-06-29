@@ -11,7 +11,7 @@ using namespace std;
 class Neuron{
 public:
   Neuron(int number, string population, double K,
-    double externalRateFactor, double phi, double lamba);
+    double externalRateFactor, double phi, double lamba, double N_E);
 
   void addInputData(pair<double,double> totalInput,
     pair<double,double> excitatoryInput, pair<double,double> inhibitoryInput);
@@ -31,6 +31,7 @@ public:
   }
 
   int number;
+  int vectorNumber;
   string population;
   double threshold;
   double externalInput;

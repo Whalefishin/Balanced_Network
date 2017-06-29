@@ -13,7 +13,7 @@ using namespace std;
 
 
 Neuron::Neuron(int number, string population, double K,
-  double externalRateFactor, double phi, double lamba){
+  double externalRateFactor, double phi, double lamba, double N_E){
   this->number = number;
   this->population = population;
   this->externalRateFactor = externalRateFactor;
@@ -38,12 +38,14 @@ Neuron::Neuron(int number, string population, double K,
     original_threshold = threshold;
     externalInput = externalRateFactor*1*m_0*sqrt(K);
     tau = 1;
+    vectorNumber = number-1;
   }
   else if (population == "I"){
     threshold = 0.7;
     original_threshold = threshold;
     externalInput = externalRateFactor*0.8*m_0*sqrt(K);
     tau = 0.9;
+    vectorNumber = number + N_E-1;
   }
   //jump as a percentage of the original_threshold
   //adaptation_jump = 0.3*threshold;

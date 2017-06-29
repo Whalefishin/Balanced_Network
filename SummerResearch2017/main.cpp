@@ -28,7 +28,7 @@ const double J_EI = -2;
 const double J_IE = 1;
 const double J_II = -1.8;
 
-const int update_steps = 50000;
+const int update_steps = 300000;
 const int update_times_for_EM = 1;
 
 const double externalRateFactor = 1;
@@ -53,7 +53,7 @@ new Balanced_Network(Num_Excitatory_Neurons,Num_Inhibitory_Neurons, K,
 
 neural_network->initializeJmatrix(J_EE, J_EI, J_IE, J_II);
 
-neural_network->establishConnections();
+//neural_network->establishConnections();
 
 
 double** J = neural_network->getJmatrix();
@@ -160,7 +160,7 @@ for (int i=1;i<=10;i++){
   Balanced_Network(Num_Excitatory_Neurons,Num_Inhibitory_Neurons, K,
     externalRateFactor, adaptation_jump,i*0.01);
   toInsert->initializeJmatrix(J_EE, J_EI, J_IE, J_II);
-  toInsert->establishConnections();
+  //toInsert->establishConnections();
   Collection.push_back(toInsert);
 }
 
@@ -364,7 +364,7 @@ parametersTxt << "Lamba: " + to_string(nVector[0]->decay_constant) << endl;
 
 
 //Testing out 95E
-
+/*
 vector<Edge<Neuron*,string,double>> incomingConnections =
 neural_network->getIncomingConnections(nVector[911]);
 
@@ -388,7 +388,7 @@ for (int i=0;i<incomingConnections.size();i++){
 cout << "Exc count: " + to_string(excSum) << endl;
 cout << "Inh count: " + to_string(inhSum) << endl;
 
-
+*/
 
 
 //see if neurons are connected

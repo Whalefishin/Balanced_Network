@@ -15,7 +15,7 @@ double externalRateFactor, double phi, double lamba){
 //  srand(1);
 
   time = 0;
-  network = new AdjacencyListGraph<Neuron*,string,double>;
+  //network = new AdjacencyListGraph<Neuron*,string,double>;
   minimum_time_queue = new STLPriorityQueue<double,Neuron*>;
 
   //adds E excitatory and I inhibitory neurons to the network
@@ -27,16 +27,24 @@ double externalRateFactor, double phi, double lamba){
   this->phi = phi;
 
   for (int i=1;i<=N_E;i++){
-    Neuron* n = new Neuron(i,"E",K,externalRateFactor,phi,lamba);
-    network->insertVertex(n);
+    Neuron* n = new Neuron(i,"E",K,externalRateFactor,phi,lamba,N_E);
+    //network->insertVertex(n);
     neuron_Vector.push_back(n);
   }
 
   for (int i=1;i<=N_I;i++){
-    Neuron* n = new Neuron(i,"I",K,externalRateFactor,phi,lamba);
-    network->insertVertex(n);
+    Neuron* n = new Neuron(i,"I",K,externalRateFactor,phi,lamba,N_E);
+    //network->insertVertex(n);
     neuron_Vector.push_back(n);
   }
+
+  //initialize adjacencyList
+  /*
+  for (int i=0;i<neuron_Vector.size();i++){
+    vector<Neuron*> adjacent;
+    adjacencyList.push_back(adjacent);
+  }
+*/
 
   //neuron_Vector = network->getVertices();
   //adds all the update times to a priority queue.
@@ -92,11 +100,11 @@ Balanced_Network::~Balanced_Network(){
   deleteNeurons();
   deleteJmatrix();
   delete minimum_time_queue;
-  delete network;
+  //delete network;
 }
 
 double Balanced_Network::getThreshold(Neuron* n){
-  if (network->containsVertex(n)){
+  if (containsNeuron(n)){
     return n->threshold;
   }
   else {
@@ -105,7 +113,7 @@ double Balanced_Network::getThreshold(Neuron* n){
 }
 
 double Balanced_Network::getExternalInput(Neuron* n){
-  if (network->containsVertex(n)){
+  if (containsNeuron(n)){
     return n->externalInput;
   }
   else {
@@ -114,7 +122,7 @@ double Balanced_Network::getExternalInput(Neuron* n){
 }
 
 double Balanced_Network::getTotalInput(Neuron* n){
-  if (network->containsVertex(n)){
+  if (containsNeuron(n)){
     return n->totalInput;
   }
   else {
@@ -237,6 +245,8 @@ STLPriorityQueue<double,Neuron*>* Balanced_Network::getPQ(){
   return minimum_time_queue;
 }
 
+//addNeurons()
+/*
 void Balanced_Network::addNeurons(int N_E, int N_I){
   this->N_E = this->N_E + N_E;
   this->N_I = this->N_I + N_I;
@@ -258,10 +268,17 @@ void Balanced_Network::addNeurons(int N_E, int N_I){
     minimum_time_queue->insert((-1*toInsert->time_to_be_updated),toInsert);
   }
 }
+*/
 
 bool Balanced_Network::containsNeuron(Neuron* n){
-  return network->containsVertex(n);
+  if (n->vectorNumber >= neuron_Vector.size()){
+    return false;
+  }
+  else {
+    return true;
+  }
 }
+
 
 Neuron* Balanced_Network::chooseRandomNeuron(){
   if (neuron_Vector.size()==0){
@@ -272,12 +289,15 @@ Neuron* Balanced_Network::chooseRandomNeuron(){
   return neuron_Vector[index];
 }
 
+/*
 vector<Neuron*> Balanced_Network::getNeurons(){
   return network->getVertices();
 }
+*/
 
-void Balanced_Network::insertConnection(Neuron* source, Neuron* target, string label, double strength){
-  network->insertEdge(source, target, label, strength);
+/*
+void Balanced_Network::insertConnection(Neuron* source, Neuron* target){
+  adjacencyList[target->vectorNumber].push_back(source);
 }
 
 void Balanced_Network::removeConnection(Neuron* source, Neuron* target){
@@ -288,10 +308,10 @@ bool Balanced_Network::isConnected(Neuron* source, Neuron* target){
   return network->containsEdge(source, target);
 }
 
-vector<Edge<Neuron*,string,double> > Balanced_Network::getIncomingConnections(Neuron* n){
-  return network->getIncomingEdges(n);
+vector<Neuron*> Balanced_Network::getIncomingNeurons(Neuron* n){
+  return adjacencyList[n->vectorNumber];
 }
-
+*/
 
 void Balanced_Network::initializeJmatrix(const double J_EE, const double J_EI, const double J_IE, const double J_II){
   //initialize a N_E+N_I square matrix
@@ -342,6 +362,7 @@ void Balanced_Network::initializeNeurons(){
   }
 }
 
+/*
 void Balanced_Network::establishConnections(){
   if (neuron_Vector.size()==0){
     throw runtime_error("There are currently no neurons in the network.");
@@ -355,6 +376,7 @@ void Balanced_Network::establishConnections(){
     }
   }
 }
+*/
 
 double Balanced_Network::Heaviside(double value){
   if (value >0){
@@ -379,6 +401,9 @@ void Balanced_Network::checkActiveNeurons(double startTime, double endTime){
   }
 }
 
+
+
+
 void Balanced_Network::update(Neuron* neuron_to_record){
   if (neuron_Vector.size()==0){
     throw runtime_error("There are currently no neurons in the network.");
@@ -395,12 +420,12 @@ void Balanced_Network::update(Neuron* neuron_to_record){
   neuron_to_update->totalExcitatoryInput =0;
   neuron_to_update->totalInhibitoryInput =0;
 
-  vector<Edge<Neuron*,string,double> > incomingConnections = network->getIncomingEdges(neuron_to_update);
+
+  //vector<Edge<Neuron*,string,double> > incomingConnections = network->getIncomingEdges(neuron_to_update);
     //the for-loop sums over all the connected neurons
-  for (int j=0;j<incomingConnections.size();j++){
-    Neuron* incoming_neuron = incomingConnections[j].source;
-    double state = incoming_neuron->state;
-    double strength = incomingConnections[j].weight;
+  for (int j=0;j<N_E+N_I;j++){
+    double strength = Jmatrix[neuron_to_update->vectorNumber][j];
+    double state = neuron_Vector[j]->state;
     //neuron_to_update->totalInput += strength * state;
     if (strength > 0){
       neuron_to_update->totalExcitatoryInput += (strength*state);
@@ -563,12 +588,9 @@ void Balanced_Network::update2(){
   neuron_to_update->totalExcitatoryInput =0;
   neuron_to_update->totalInhibitoryInput =0;
 
-  vector<Edge<Neuron*,string,double> > incomingConnections = network->getIncomingEdges(neuron_to_update);
-    //the for-loop sums over all the connected neurons
-  for (int j=0;j<incomingConnections.size();j++){
-    Neuron* incoming_neuron = incomingConnections[j].source;
-    double state = incoming_neuron->state;
-    double strength = incomingConnections[j].weight;
+  for (int j=0;j<N_E+N_I;j++){
+    double strength = Jmatrix[neuron_to_update->vectorNumber][j];
+    double state = neuron_Vector[j]->state;
     //neuron_to_update->totalInput += strength * state;
     if (strength > 0){
       neuron_to_update->totalExcitatoryInput += (strength*state);
@@ -620,12 +642,9 @@ void Balanced_Network::update3(){
   neuron_to_update->totalExcitatoryInput =0;
   neuron_to_update->totalInhibitoryInput =0;
 
-  vector<Edge<Neuron*,string,double> > incomingConnections = network->getIncomingEdges(neuron_to_update);
-    //the for-loop sums over all the connected neurons
-  for (int j=0;j<incomingConnections.size();j++){
-    Neuron* incoming_neuron = incomingConnections[j].source;
-    double state = incoming_neuron->state;
-    double strength = incomingConnections[j].weight;
+  for (int j=0;j<N_E+N_I;j++){
+    double strength = Jmatrix[neuron_to_update->vectorNumber][j];
+    double state = neuron_Vector[j]->state;
     //neuron_to_update->totalInput += strength * state;
     if (strength > 0){
       neuron_to_update->totalExcitatoryInput += (strength*state);
@@ -728,13 +747,16 @@ void Balanced_Network::addEI_Ratios(){
 
 //private methods.
 
+/*
 void Balanced_Network::insertNeuron(Neuron* n){
   network->insertVertex(n);
 }
 
+
 void Balanced_Network::removeNeuron(Neuron* n){
   network->removeVertex(n);
 }
+*/
 
 void Balanced_Network::record(pair<double,double> totalInput_data, pair<double,double> excitatoryInput_data,
   pair<double,double> inhibitoryInput_data, Neuron* neuron_to_record){
