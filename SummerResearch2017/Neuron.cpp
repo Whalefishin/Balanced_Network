@@ -18,7 +18,7 @@ Neuron::Neuron(int number, string population, double K,
   this->population = population;
   this->externalRateFactor = externalRateFactor;
 
-  m_0 = 0.5;
+  m_0 = 0.2;
   last_spike_time =0;
   last_update_time = 0;
   current_spike_time =0;
@@ -74,11 +74,11 @@ void Neuron::addInputData(pair<double,double> totalInput,
   inhibitoryInput_timeSeries.push_back(inhibitoryInput);
 }
 
-
+/*
 void Neuron::update_time_to_be_updated(){
   time_to_be_updated+=tau;
 }
-
+*/
 
 void Neuron::fire(){
   state = 1;

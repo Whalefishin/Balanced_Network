@@ -11,6 +11,7 @@ using namespace std;
 
 
 Balanced_Network::Balanced_Network(double N_E, double N_I, double K,
+  double J_EE, double J_EI, double J_IE, double J_II,
 double externalRateFactor, double phi, double lamba){
 //  srand(1);
 
@@ -55,6 +56,7 @@ double externalRateFactor, double phi, double lamba){
 
   //initialize the neurons to states 0 or 1
   initializeNeurons();
+  initializeJmatrix(J_EE,J_EI,J_IE,J_II);
 
   double excAtvCount = 0;
   double inhAtvCount = 0;
@@ -295,25 +297,56 @@ vector<Neuron*> Balanced_Network::getNeurons(){
 }
 */
 
-/*
+
 void Balanced_Network::insertConnection(Neuron* source, Neuron* target){
-  adjacencyList[target->vectorNumber].push_back(source);
+  if (isConnected(source,target)){
+    throw runtime_error("The two neurons are already connected.");
+  }
+
+  string sourcePop = source->population;
+  string targetPop = target->population;
+  if (sourcePop == "E" && targetPop == "E"){
+    Jmatrix[source->vectorNumber][target->vectorNumber] = J_EE;
+  }
+  else if (sourcePop == "E" && targetPop == "I"){
+    Jmatrix[source->vectorNumber][target->vectorNumber] = J_IE;
+  }
+  else if (sourcePop == "I" && targetPop == "E"){
+    Jmatrix[source->vectorNumber][target->vectorNumber] = J_EI;
+  }
+  else{
+    Jmatrix[source->vectorNumber][target->vectorNumber] = J_II;
+  }
 }
 
 void Balanced_Network::removeConnection(Neuron* source, Neuron* target){
-  network->removeEdge(source, target);
+  if (!isConnected(source,target)){
+    throw runtime_error("The two neurons are not connected in the first place!");
+  }
+  Jmatrix[source->vectorNumber][target->vectorNumber] = 0;
 }
 
 bool Balanced_Network::isConnected(Neuron* source, Neuron* target){
-  return network->containsEdge(source, target);
+  if (Jmatrix[source->vectorNumber][target->vectorNumber] != 0 ){
+    return true;
+  }
+  else {
+    return false;
+  }
 }
 
+/*
 vector<Neuron*> Balanced_Network::getIncomingNeurons(Neuron* n){
   return adjacencyList[n->vectorNumber];
 }
 */
 
 void Balanced_Network::initializeJmatrix(const double J_EE, const double J_EI, const double J_IE, const double J_II){
+  this->J_EE = J_EE;
+  this->J_EI = J_EI;
+  this->J_IE = J_IE;
+  this->J_II = J_II;
+
   //initialize a N_E+N_I square matrix
   //input paramater K is the connectivity index
   Jmatrix = new double*[int (N_E+N_I)];
@@ -514,7 +547,8 @@ void Balanced_Network::update(Neuron* neuron_to_record){
       meanInhThresholdTimeSeries.back().second += neuron_to_update->threshold;
     }
 
-    checkActiveNeurons(99,100);
+    //studying the plateau region, not really necessary now.
+    //checkActiveNeurons(99,100);
 
     //cout << neuron_Vector[94]->state << endl;
     //Mean Activity stuff

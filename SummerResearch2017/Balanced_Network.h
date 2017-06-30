@@ -18,6 +18,7 @@ class Balanced_Network{
 
 public:
   Balanced_Network(double N_E, double N_I, double K,
+    double J_EE, double J_EI, double J_IE, double J_II,
      double externalRateFactor, double phi, double lamba);
 
   ~Balanced_Network();
@@ -89,15 +90,15 @@ public:
   //insert a connection between two neurons.
   //paramaters: the source and target neuron, the label (can just be
   //empty), and the connection strength.
-  //void insertConnection(Neuron* source, Neuron* target, string label, double strength);
+  void insertConnection(Neuron* source, Neuron* target);
 
   //remove a connection between two neurons
-  //void removeConnection(Neuron* source, Neuron* target);
+  void removeConnection(Neuron* source, Neuron* target);
 
   //check if two neurons are connected.
   //returns true iff there is a connection established
   //from the source neuron onto the target neuron.
-  //bool isConnected(Neuron* source, Neuron* target);
+  bool isConnected(Neuron* source, Neuron* target);
 
   //get all the incoming connections to a neuron (all the
   //connections with that neuron as the target)
@@ -171,6 +172,11 @@ private:
   double N_I;
 
   double K;
+  double J_EE;
+  double J_EI;
+  double J_IE;
+  double J_II;
+
   double externalRateFactor;
 
   double time;

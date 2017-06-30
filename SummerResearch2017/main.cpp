@@ -19,22 +19,26 @@ int main(){
 srand(6);
 
 //Various paramaters
-double Num_Excitatory_Neurons = 800;
-double Num_Inhibitory_Neurons = 200;
-const double K = 20;
+const double Num_Excitatory_Neurons = 8;
+const double Num_Inhibitory_Neurons = 2;
+const double Num_Excitatory_Neurons_Scale = 4000;
+const double Num_Inhibitory_Neurons_Scale = 1000;
+const double K = 200;
+const double K_Scale = 100;
 
 const double J_EE = 1;
 const double J_EI = -2;
 const double J_IE = 1;
 const double J_II = -1.8;
 
-const int update_steps = 300000;
-const int update_times_for_EM = 1;
+const int update_steps = 1;
+const int update_times_Scale = 1500000;
 
+const double Num_Scale = 10;
 const double externalRateFactor = 1;
 
 const double adaptation_jump = 0.3;
-const double decay_constant = 0.01;
+const double decay_constant = 0.05;
 
 
 //If you wish to change the neuronal constants, you have to
@@ -49,9 +53,9 @@ double Num_All_Neurons = Num_Excitatory_Neurons + Num_Inhibitory_Neurons;
 
 Balanced_Network* neural_network =
 new Balanced_Network(Num_Excitatory_Neurons,Num_Inhibitory_Neurons, K,
-  externalRateFactor,adaptation_jump,decay_constant);
+  J_EE, J_EI, J_IE, J_II,externalRateFactor,adaptation_jump,decay_constant);
 
-neural_network->initializeJmatrix(J_EE, J_EI, J_IE, J_II);
+//neural_network->initializeJmatrix(J_EE, J_EI, J_IE, J_II);
 
 //neural_network->establishConnections();
 
@@ -139,7 +143,7 @@ vector<pair<double,double>> inh_mean_threshold = neural_network->getMeanInhThres
 //Adaptation Gain - Lamba vs. EI ratios
 vector<double> lambaVector;
 vector<double> meanEIratioVector;
-
+vector<double> standardDeviationEIratioVector;
 
 //Adaptation Gain - Phi vs. EI ratios
 vector<double> phiVector;
@@ -153,13 +157,14 @@ vector<pair<double,double>> EM_dataVector_inhibitory;
 
 vector<Balanced_Network*> Collection;
 
-for (int i=1;i<=10;i++){
+for (int i=1;i<=Num_Scale;i++){
   srand(6);
   // double r=((double)rand()/(double)RAND_MAX);
   Balanced_Network* toInsert = new
-  Balanced_Network(Num_Excitatory_Neurons,Num_Inhibitory_Neurons, K,
-    externalRateFactor, adaptation_jump,i*0.01);
-  toInsert->initializeJmatrix(J_EE, J_EI, J_IE, J_II);
+  Balanced_Network(Num_Excitatory_Neurons_Scale,Num_Inhibitory_Neurons_Scale
+    , K_Scale,J_EE, J_EI, J_IE, J_II,
+    externalRateFactor, i*0.1,decay_constant);
+  //toInsert->initializeJmatrix(J_EE, J_EI, J_IE, J_II);
   //toInsert->establishConnections();
   Collection.push_back(toInsert);
 }
@@ -179,8 +184,8 @@ for (int i=0;i<10;i++){
 
 
 //the second way of computing the mean activity
-for (int i=0;i<10;i++){
-  for (int j=0;j<update_times_for_EM;j++){
+for (int i=0;i<Num_Scale;i++){
+  for (int j=0;j<update_times_Scale;j++){
     //Population gain
     //Collection[i]->update3();
 
@@ -199,8 +204,11 @@ for (int i=0;i<10;i++){
   //Adaptation Gain - Lamba vs. EI ratios
 
   Collection[i]->addEI_Ratios();
+  phiVector.push_back(Collection[i]->phi);
   lambaVector.push_back(Collection[i]->lamba);
   meanEIratioVector.push_back(mean(Collection[i]->getEI_Ratios()));
+  standardDeviationEIratioVector.push_back(
+    standardDeviation(Collection[i]->getEI_Ratios()));
 
 
 
@@ -247,8 +255,9 @@ ofstream inhMeanThresholdTxt("Data/Inh_Mean_Threshold.txt");
 ofstream inhThresTimeTxt("Data/Inh_Thres_Time.txt");
 
 ofstream adaptationGainTxt1("Data/Adaptation_lamba.txt");
-ofstream adaptationGainTxt2("Data/Adaptation_EI_Ratios.txt");
+ofstream adaptationGainTxt2("Data/Adaptation_EI_Ratios_Mean.txt");
 ofstream adaptationGainTxt3("Data/Adaptation_Phi.txt");
+ofstream adaptationGainTxt4("Data/Adaptation_EI_Ratios_SD.txt");
 
 ofstream plateauTimeTxt("Data/Plateau_Times.txt");
 ofstream plateauNeuronsTxt("Data/Plateau_Neurons.txt");
@@ -325,18 +334,21 @@ for(int i=0;i<inh_mean_threshold.size();i++){
 
 //Adaptation Gain - Lamba vs. EI ratios
 
-for (int i=0;i<lambaVector.size();i++){
+for (int i=0;i<meanEIratioVector.size();i++){
   adaptationGainTxt1 << lambaVector[i] << endl;
   adaptationGainTxt2 << meanEIratioVector[i] << endl;
+  adaptationGainTxt3 << phiVector[i]<< endl;
+  adaptationGainTxt4 << standardDeviationEIratioVector[i] << endl;
 }
 
 
 //Adaptation Gain - Phi vs. EI ratios
+/*
 for (int i=0;i<phiVector.size();i++){
   adaptationGainTxt3 << phiVector[i]<< endl;
   adaptationGainTxt2 << meanEIratioVector[i] << endl;
 }
-
+*/
 
 //Investigate plateau region
 for (int i=0;i<neural_network->activeNeurons.size();i++){
@@ -356,10 +368,16 @@ parametersTxt << "Number of neurons: " + to_string(Num_All_Neurons) << endl;
 parametersTxt << "Neuron ratios(Exc/Inh): " + to_string(Num_Excitatory_Neurons/Num_Inhibitory_Neurons) << endl;
 parametersTxt << "K: " + to_string(K) << endl;
 parametersTxt << "m_0: " + to_string(nVector[0]->m_0) << endl;
+parametersTxt << "External Input: " + to_string(nVector[0]->externalInput) << endl;
 parametersTxt << "Number of updates: " + to_string(update_steps) <<endl;
 parametersTxt << "Adaptation Jump: " + to_string(nVector[0]->adaptation_jump) << endl;
 parametersTxt << "Lamba: " + to_string(nVector[0]->decay_constant) << endl;
-
+parametersTxt << " " << endl;
+parametersTxt << "Scaling part: " << endl;
+parametersTxt << "Number of networks: " + to_string(Num_Scale) << endl;
+parametersTxt << "Number of neurons: " + to_string(Num_Excitatory_Neurons_Scale+ Num_Inhibitory_Neurons_Scale) << endl;
+parametersTxt << "K: " + to_string(K_Scale) << endl;
+parametersTxt << "Number of updates: " + to_string(update_times_Scale) << endl;
 
 
 

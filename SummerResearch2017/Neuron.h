@@ -15,7 +15,9 @@ public:
 
   void addInputData(pair<double,double> totalInput,
     pair<double,double> excitatoryInput, pair<double,double> inhibitoryInput);
-  void update_time_to_be_updated();
+  inline void update_time_to_be_updated(){
+      time_to_be_updated+=tau;
+  }
   void fire();
   void rest();
   void updateThresholdSmooth(double currentTime);
