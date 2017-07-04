@@ -34,11 +34,12 @@ const double J_II = -1.8;
 const int update_steps = 1;
 const int update_times_Scale = 1500000;
 
-const double Num_Scale = 10;
+const double Num_Scale1 = 1;
+const double Num_Scale2 = 50;
 const double externalRateFactor = 1;
 
 const double adaptation_jump = 0.3;
-const double decay_constant = 0.05;
+const double decay_constant = 0.5;
 
 
 //If you wish to change the neuronal constants, you have to
@@ -104,28 +105,12 @@ for (int i=0;i<totTimeSeries.size();i++){
 */
 
 
-//print E_I ratios
 
 
 //add the EI ratio data.
 neural_network->addEI_Ratios();
 
 vector<double> EI_ratios = neural_network->getEI_Ratios();
-/*
-for (int i=0;i<EI_ratios.size();i++){
-  cout << "The " + to_string(i+1) + "th EI_ratio is: " +
-  to_string(EI_ratios[i]) << endl;
-}
-*/
-
-
-//print ISI
-/*
-for (int i=0;i<nVector.size();i++){
-  cout << "The " + to_string(i+1) + "th CV is: " +
-  to_string(CoefficientVariation(nVector[i]->ISI_data)) << endl;
-}
-*/
 
 
 //print mean Activity
@@ -157,16 +142,16 @@ vector<pair<double,double>> EM_dataVector_inhibitory;
 
 vector<Balanced_Network*> Collection;
 
-for (int i=1;i<=Num_Scale;i++){
+for (int j=1;j<=Num_Scale1;j++){
+for (int i=1;i<=Num_Scale2;i++){
   srand(6);
   // double r=((double)rand()/(double)RAND_MAX);
   Balanced_Network* toInsert = new
   Balanced_Network(Num_Excitatory_Neurons_Scale,Num_Inhibitory_Neurons_Scale
     , K_Scale,J_EE, J_EI, J_IE, J_II,
-    externalRateFactor, i*0.1,decay_constant);
-  //toInsert->initializeJmatrix(J_EE, J_EI, J_IE, J_II);
-  //toInsert->establishConnections();
+    i*0.02, adaptation_jump,decay_constant);
   Collection.push_back(toInsert);
+}
 }
 
 //the first way of computing the mean activity
@@ -182,9 +167,8 @@ for (int i=0;i<10;i++){
 }
 */
 
-
 //the second way of computing the mean activity
-for (int i=0;i<Num_Scale;i++){
+for (int i=0;i<Num_Scale1*Num_Scale2;i++){
   for (int j=0;j<update_times_Scale;j++){
     //Population gain
     //Collection[i]->update3();
@@ -194,14 +178,12 @@ for (int i=0;i<Num_Scale;i++){
     Collection[i]->update(temp);
   }
   //pop gain
-  /*
   pair<double,double> dataPointExc = Collection[i]->getEM_data_exc2();
   pair<double,double> dataPointInh = Collection[i]->getEM_data_inh2();
   EM_dataVector_excitatory.push_back(dataPointExc);
   EM_dataVector_inhibitory.push_back(dataPointInh);
-  */
 
-  //Adaptation Gain - Lamba vs. EI ratios
+  //Adaptation Scaling - Lamba & Phi vs. EI ratios
 
   Collection[i]->addEI_Ratios();
   phiVector.push_back(Collection[i]->phi);
@@ -210,14 +192,6 @@ for (int i=0;i<Num_Scale;i++){
   standardDeviationEIratioVector.push_back(
     standardDeviation(Collection[i]->getEI_Ratios()));
 
-
-
-  //Adaptation Gain - Phi vs. EI ratios
-  /*
-  Collection[i]->addEI_Ratios();
-  phiVector.push_back(Collection[i]->phi);
-  meanEIratioVector.push_back(mean(Collection[i]->getEI_Ratios()));
-  */
 }
 
 
@@ -374,7 +348,7 @@ parametersTxt << "Adaptation Jump: " + to_string(nVector[0]->adaptation_jump) <<
 parametersTxt << "Lamba: " + to_string(nVector[0]->decay_constant) << endl;
 parametersTxt << " " << endl;
 parametersTxt << "Scaling part: " << endl;
-parametersTxt << "Number of networks: " + to_string(Num_Scale) << endl;
+parametersTxt << "Number of networks: " + to_string(Num_Scale2*Num_Scale1) << endl;
 parametersTxt << "Number of neurons: " + to_string(Num_Excitatory_Neurons_Scale+ Num_Inhibitory_Neurons_Scale) << endl;
 parametersTxt << "K: " + to_string(K_Scale) << endl;
 parametersTxt << "Number of updates: " + to_string(update_times_Scale) << endl;
@@ -584,7 +558,21 @@ cout << "Number of inhibitory connection is: " +
  to_string(inhCount) <<endl;
 */
 
+//print E_I ratios
+/*
+for (int i=0;i<EI_ratios.size();i++){
+  cout << "The " + to_string(i+1) + "th EI_ratio is: " +
+  to_string(EI_ratios[i]) << endl;
+}
+*/
 
+//print ISI
+/*
+for (int i=0;i<nVector.size();i++){
+  cout << "The " + to_string(i+1) + "th CV is: " +
+  to_string(CoefficientVariation(nVector[i]->ISI_data)) << endl;
+}
+*/
 
 delete neural_network;
 

@@ -535,8 +535,8 @@ void Balanced_Network::update(Neuron* neuron_to_record){
     }
 
     //SFA stuff
-    neuron_to_update->updateThresholdDiscrete(time, timeElapsed);
-    neuron_to_update->last_update_time = time;
+    //neuron_to_update->updateThresholdDiscrete(time, timeElapsed);
+    //neuron_to_update->last_update_time = time;
 
 
     //for mean Threshold

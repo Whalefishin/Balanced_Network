@@ -164,7 +164,7 @@ private:
 
   //Graph<Neuron*,string,double>* network;
   double** Jmatrix;
-  vector<vector<Neuron*>> adjacencyList;
+  //vector<vector<Neuron*>> adjacencyList;
 
 
   //The number of excitatory and inhibitory neurons
