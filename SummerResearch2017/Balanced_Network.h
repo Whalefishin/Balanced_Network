@@ -19,7 +19,7 @@ class Balanced_Network{
 public:
   Balanced_Network(double N_E, double N_I, double K,
     double J_EE, double J_EI, double J_IE, double J_II,
-     double externalRateFactor, double phi, double lamba);
+     double externalRateFactor, double phi, double lambda);
 
   ~Balanced_Network();
 
@@ -143,7 +143,7 @@ public:
 
   vector<Neuron*> neuron_Vector;
 
-  double lamba;
+  double lambda;
   double phi;
 
   //at time pair.first, we have the active neurons

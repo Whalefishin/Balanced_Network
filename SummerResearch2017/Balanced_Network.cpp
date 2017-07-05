@@ -12,7 +12,7 @@ using namespace std;
 
 Balanced_Network::Balanced_Network(double N_E, double N_I, double K,
   double J_EE, double J_EI, double J_IE, double J_II,
-double externalRateFactor, double phi, double lamba){
+double externalRateFactor, double phi, double lambda){
 //  srand(1);
 
   time = 0;
@@ -24,17 +24,17 @@ double externalRateFactor, double phi, double lamba){
   this->N_I = N_I;
   this->K = K;
   this->externalRateFactor = externalRateFactor;
-  this->lamba = lamba;
+  this->lambda = lambda;
   this->phi = phi;
 
   for (int i=1;i<=N_E;i++){
-    Neuron* n = new Neuron(i,"E",K,externalRateFactor,phi,lamba,N_E);
+    Neuron* n = new Neuron(i,"E",K,externalRateFactor,phi,lambda,N_E);
     //network->insertVertex(n);
     neuron_Vector.push_back(n);
   }
 
   for (int i=1;i<=N_I;i++){
-    Neuron* n = new Neuron(i,"I",K,externalRateFactor,phi,lamba,N_E);
+    Neuron* n = new Neuron(i,"I",K,externalRateFactor,phi,lambda,N_E);
     //network->insertVertex(n);
     neuron_Vector.push_back(n);
   }
@@ -197,7 +197,7 @@ pair<double,double> Balanced_Network::getEM_data_exc2(){
     excStateSum +=excitatoryActivityTimeSeries[i].second;
   }
   //cout << excStateSum << endl;
-  toReturn.second = excStateSum/N_E/(excUpdateCount-1600);
+  toReturn.second = excStateSum/N_E/(excitatoryActivityTimeSeries.size()-1600);
   return toReturn;
 }
 
@@ -209,7 +209,7 @@ pair<double,double> Balanced_Network::getEM_data_inh2(){
     inhStateSum += inhibitoryActivityTimeSeries[i].second;
   }
   cout << inhStateSum << endl;
-  toReturn.second = inhStateSum/N_I/(inhUpdateCount-400);
+  toReturn.second = inhStateSum/N_I/(inhibitoryActivityTimeSeries.size()-400);
   return toReturn;
 }
 
@@ -254,12 +254,12 @@ void Balanced_Network::addNeurons(int N_E, int N_I){
   this->N_I = this->N_I + N_I;
 
   for (int i=1;i<=N_E;i++){
-    Neuron* n = new Neuron(i,"E",K,externalRateFactor,phi,lamba);
+    Neuron* n = new Neuron(i,"E",K,externalRateFactor,phi,lambda);
     network->insertVertex(n);
   }
 
   for (int i=1;i<=N_I;i++){
-    Neuron* n = new Neuron(i,"I",K,externalRateFactor,phi,lamba);
+    Neuron* n = new Neuron(i,"I",K,externalRateFactor,phi,lambda);
     network->insertVertex(n);
   }
 
@@ -436,7 +436,6 @@ void Balanced_Network::checkActiveNeurons(double startTime, double endTime){
 
 
 
-
 void Balanced_Network::update(Neuron* neuron_to_record){
   if (neuron_Vector.size()==0){
     throw runtime_error("There are currently no neurons in the network.");
@@ -483,12 +482,15 @@ void Balanced_Network::update(Neuron* neuron_to_record){
     //neuron_to_update->stateSum += neuron_to_update->state;
 
     //EI ratio stuff(second plot)
-    //the if statement prevents dividing by zero
-    if(neuron_to_update->totalInhibitoryInput !=0){
+    /*
+    neuron_to_update->EI_Ratio_Exc += neuron_to_update->totalExcitatoryInput;
+    neuron_to_update->EI_Ratio_Inh += neuron_to_update->totalInhibitoryInput;
+    */
+    if (neuron_to_update->totalInhibitoryInput!=0){
       neuron_to_update->EI_Ratio += (neuron_to_update->totalExcitatoryInput/
-        neuron_to_update->totalInhibitoryInput);
+      neuron_to_update->totalInhibitoryInput);
+      neuron_to_update->update_count++;
     }
-    neuron_to_update->update_count++;
 
     //update the network time
     time = neuron_to_update->time_to_be_updated;
@@ -613,7 +615,6 @@ void Balanced_Network::update(Neuron* neuron_to_record){
       record(data_total,data_exc,data_inh,neuron_to_record);
     }
 }
-
 
 
 //the below two functions are pretty much obselete
@@ -782,6 +783,10 @@ void Balanced_Network::addEI_Ratios(){
   for (int i=0;i<neuron_Vector.size();i++){
     EI_Ratio_Collection.push_back(neuron_Vector[i]->EI_Ratio /
       neuron_Vector[i]->update_count);
+    /*
+    EI_Ratio_Collection.push_back(neuron_Vector[i]->EI_Ratio_Exc/
+    neuron_Vector[i]->EI_Ratio_Inh);
+    */
   }
 }
 

@@ -32,13 +32,13 @@ const double J_IE = 1;
 const double J_II = -1.8;
 
 const int update_steps = 1;
-const int update_times_Scale = 1500000;
+const int update_times_Scale = 5000*50;
 
 const double Num_Scale1 = 1;
-const double Num_Scale2 = 10;
+const double Num_Scale2 = 20;
 const double externalRateFactor = 1;
 
-const double adaptation_jump = 0.3;
+const double adaptation_jump = 0;
 const double decay_constant = 0.3;
 
 
@@ -125,15 +125,15 @@ vector<pair<double,double>> inh_mean_threshold = neural_network->getMeanInhThres
 
 
 
-//Adaptation Scaling - Lamba vs. EI ratios
-vector<double> lambaVector;
+//Adaptation Scaling - lambda vs. EI ratios
+vector<double> lambdaVector;
 vector<double> meanEIratioVector;
 vector<double> standardDeviationEIratioVector;
 
 //Adaptation Scaling - Phi vs. EI ratios
 vector<double> phiVector;
 
-//Adaptation Scaling - Lamba & Phi vs. Mean threshold
+//Adaptation Scaling - lambda & Phi vs. Mean threshold
 vector<double> meanExcThresholdVector;
 vector<double> meanInhThresholdVector;
 
@@ -154,7 +154,7 @@ for (int i=1;i<=Num_Scale2;i++){
   Balanced_Network* toInsert = new
   Balanced_Network(Num_Excitatory_Neurons_Scale,Num_Inhibitory_Neurons_Scale
     , K_Scale,J_EE, J_EI, J_IE, J_II,
-    externalRateFactor, i*0.1,decay_constant);
+    i*0.07, adaptation_jump,decay_constant);
   Collection.push_back(toInsert);
 }
 }
@@ -171,15 +171,15 @@ for (int i=0;i<Num_Scale1*Num_Scale2;i++){
   EM_dataVector_excitatory.push_back(dataPointExc);
   EM_dataVector_inhibitory.push_back(dataPointInh);
 
-  //Adaptation Scaling - Lamba & Phi vs. EI ratios
+  //Adaptation Scaling - lambda & Phi vs. EI ratios
   Collection[i]->addEI_Ratios();
   phiVector.push_back(Collection[i]->phi);
-  lambaVector.push_back(Collection[i]->lamba);
+  lambdaVector.push_back(Collection[i]->lambda);
   meanEIratioVector.push_back(mean(Collection[i]->getEI_Ratios()));
   standardDeviationEIratioVector.push_back(
     standardDeviation(Collection[i]->getEI_Ratios()));
 
-  //Adaptation Scaling - Lamba & Phi vs. Mean Threshold
+  //Adaptation Scaling - lambda & Phi vs. Mean Threshold
   meanExcThresholdVector.push_back(Collection[i]->getMeanExcThreshold());
   meanInhThresholdVector.push_back(Collection[i]->getMeanInhThreshold());
 }
@@ -218,7 +218,7 @@ ofstream excThresTimeTxt("Data/Exc_Thres_Time.txt");
 ofstream inhMeanThresholdTxt("Data/Inh_Mean_Threshold.txt");
 ofstream inhThresTimeTxt("Data/Inh_Thres_Time.txt");
 
-ofstream adaptationGainTxt1("Data/Adaptation_lamba.txt");
+ofstream adaptationGainTxt1("Data/Adaptation_Lambda.txt");
 ofstream adaptationGainTxt2("Data/Adaptation_EI_Ratios_Mean.txt");
 ofstream adaptationGainTxt3("Data/Adaptation_Phi.txt");
 ofstream adaptationGainTxt4("Data/Adaptation_EI_Ratios_SD.txt");
@@ -299,10 +299,10 @@ for(int i=0;i<inh_mean_threshold.size();i++){
 }
 
 
-//Adaptation Scaling - Lamba & Phi vs. EI ratios/ Mean threshold
+//Adaptation Scaling - lambda & Phi vs. EI ratios/ Mean threshold
 
 for (int i=0;i<meanEIratioVector.size();i++){
-  adaptationGainTxt1 << lambaVector[i] << endl;
+  adaptationGainTxt1 << lambdaVector[i] << endl;
   adaptationGainTxt2 << meanEIratioVector[i] << endl;
   adaptationGainTxt3 << phiVector[i]<< endl;
   adaptationGainTxt4 << standardDeviationEIratioVector[i] << endl;
@@ -334,7 +334,7 @@ parametersTxt << "m_0: " + to_string(nVector[0]->m_0) << endl;
 parametersTxt << "External Input: " + to_string(nVector[0]->externalInput) << endl;
 parametersTxt << "Number of updates: " + to_string(update_steps) <<endl;
 parametersTxt << "Adaptation Jump: " + to_string(nVector[0]->adaptation_jump) << endl;
-parametersTxt << "Lamba: " + to_string(nVector[0]->decay_constant) << endl;
+parametersTxt << "lambda: " + to_string(nVector[0]->decay_constant) << endl;
 parametersTxt << " " << endl;
 parametersTxt << "Scaling part: " << endl;
 parametersTxt << "Number of networks: " + to_string(Num_Scale2*Num_Scale1) << endl;
@@ -400,8 +400,8 @@ if (neural_network->isConnected(nVector[912],nVector[94])){
 */
 
 /*
-cout << "One of the entries should be: lamba = "
-+ to_string(neural_network->lamba) + "meanEIRatio = " +
+cout << "One of the entries should be: lambda = "
++ to_string(neural_network->lambda) + "meanEIRatio = " +
 to_string(mean(neural_network->getEI_Ratios())) << endl;
 */
 

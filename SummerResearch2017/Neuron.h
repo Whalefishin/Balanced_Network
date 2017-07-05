@@ -11,7 +11,7 @@ using namespace std;
 class Neuron{
 public:
   Neuron(int number, string population, double K,
-    double externalRateFactor, double phi, double lamba, double N_E);
+    double externalRateFactor, double phi, double lambda, double N_E);
 
   void addInputData(pair<double,double> totalInput,
     pair<double,double> excitatoryInput, pair<double,double> inhibitoryInput);
@@ -57,8 +57,11 @@ public:
   vector<double> ISI_data;
   vector<double> spike_times;
 
+  //EI Ratios
   double EI_Ratio;
   double update_count;
+  double EI_Ratio_Exc;
+  double EI_Ratio_Inh;
 
   //ISI variables
   double last_spike_time;

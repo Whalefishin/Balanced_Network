@@ -13,12 +13,12 @@ using namespace std;
 
 
 Neuron::Neuron(int number, string population, double K,
-  double externalRateFactor, double phi, double lamba, double N_E){
+  double externalRateFactor, double phi, double lambda, double N_E){
   this->number = number;
   this->population = population;
   this->externalRateFactor = externalRateFactor;
 
-  m_0 = 0.2;
+  m_0 = 1;
   last_spike_time =0;
   last_update_time = 0;
   current_spike_time =0;
@@ -53,7 +53,7 @@ Neuron::Neuron(int number, string population, double K,
 
 
   //get adaptation constants as parameters
-  decay_constant = lamba*tau;
+  decay_constant = lambda*tau;
   adaptation_jump = phi*threshold;
 
 
@@ -65,6 +65,8 @@ Neuron::Neuron(int number, string population, double K,
     time_to_be_updated = (0+delta)*tau;
     EI_Ratio = 0;
     update_count =0;
+    EI_Ratio_Exc =0;
+    EI_Ratio_Inh =0;
 }
 
 void Neuron::addInputData(pair<double,double> totalInput,
