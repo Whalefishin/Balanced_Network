@@ -10,7 +10,7 @@ using namespace std;
 
 class Neuron{
 public:
-  Neuron(int number, string population, double K,
+  Neuron(int number, string population, double K,double m_0,
     double externalRateFactor, double phi, double lambda, double N_E);
 
   void addInputData(pair<double,double> totalInput,

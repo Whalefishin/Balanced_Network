@@ -12,13 +12,13 @@
 using namespace std;
 
 
-Neuron::Neuron(int number, string population, double K,
+Neuron::Neuron(int number, string population, double K, double m_0,
   double externalRateFactor, double phi, double lambda, double N_E){
   this->number = number;
   this->population = population;
   this->externalRateFactor = externalRateFactor;
 
-  m_0 = 1;
+  this->m_0 = m_0;
   last_spike_time =0;
   last_update_time = 0;
   current_spike_time =0;

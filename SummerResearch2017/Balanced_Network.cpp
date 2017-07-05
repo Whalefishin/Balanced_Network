@@ -11,7 +11,7 @@ using namespace std;
 
 
 Balanced_Network::Balanced_Network(double N_E, double N_I, double K,
-  double J_EE, double J_EI, double J_IE, double J_II,
+  double J_EE, double J_EI, double J_IE, double J_II, double m_0,
 double externalRateFactor, double phi, double lambda){
 //  srand(1);
 
@@ -26,15 +26,16 @@ double externalRateFactor, double phi, double lambda){
   this->externalRateFactor = externalRateFactor;
   this->lambda = lambda;
   this->phi = phi;
+  this->m_0 = m_0;
 
   for (int i=1;i<=N_E;i++){
-    Neuron* n = new Neuron(i,"E",K,externalRateFactor,phi,lambda,N_E);
+    Neuron* n = new Neuron(i,"E",K,m_0,externalRateFactor,phi,lambda,N_E);
     //network->insertVertex(n);
     neuron_Vector.push_back(n);
   }
 
   for (int i=1;i<=N_I;i++){
-    Neuron* n = new Neuron(i,"I",K,externalRateFactor,phi,lambda,N_E);
+    Neuron* n = new Neuron(i,"I",K,m_0,externalRateFactor,phi,lambda,N_E);
     //network->insertVertex(n);
     neuron_Vector.push_back(n);
   }

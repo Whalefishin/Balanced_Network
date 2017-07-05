@@ -26,18 +26,21 @@ const double Num_Inhibitory_Neurons_Scale = 1000;
 const double K = 200;
 const double K_Scale = 100;
 
+const double m_0 = 0.5;
+const double m_0_Scale = 0.2;
+
 const double J_EE = 1;
 const double J_EI = -2;
 const double J_IE = 1;
 const double J_II = -1.8;
 
 const int update_steps = 1;
-const int update_times_Scale = 5000*50;
+const int update_times_Scale = 5000*300;
 
 const double Num_Scale1 = 1;
 const double Num_Scale2 = 20;
-const double externalRateFactor = 1;
 
+const double externalRateFactor = 1;
 const double adaptation_jump = 0;
 const double decay_constant = 0.3;
 
@@ -54,7 +57,7 @@ double Num_All_Neurons = Num_Excitatory_Neurons + Num_Inhibitory_Neurons;
 
 Balanced_Network* neural_network =
 new Balanced_Network(Num_Excitatory_Neurons,Num_Inhibitory_Neurons, K,
-  J_EE, J_EI, J_IE, J_II,externalRateFactor,adaptation_jump,decay_constant);
+  J_EE, J_EI, J_IE, J_II,m_0,externalRateFactor,adaptation_jump,decay_constant);
 
 //neural_network->initializeJmatrix(J_EE, J_EI, J_IE, J_II);
 
@@ -153,7 +156,7 @@ for (int i=1;i<=Num_Scale2;i++){
   // double r=((double)rand()/(double)RAND_MAX);
   Balanced_Network* toInsert = new
   Balanced_Network(Num_Excitatory_Neurons_Scale,Num_Inhibitory_Neurons_Scale
-    , K_Scale,J_EE, J_EI, J_IE, J_II,
+    , K_Scale,J_EE, J_EI, J_IE, J_II,m_0_Scale,
     i*0.07, adaptation_jump,decay_constant);
   Collection.push_back(toInsert);
 }

@@ -18,7 +18,7 @@ class Balanced_Network{
 
 public:
   Balanced_Network(double N_E, double N_I, double K,
-    double J_EE, double J_EI, double J_IE, double J_II,
+    double J_EE, double J_EI, double J_IE, double J_II, double m_0,
      double externalRateFactor, double phi, double lambda);
 
   ~Balanced_Network();
@@ -172,6 +172,7 @@ private:
   double N_I;
 
   double K;
+  double m_0;
   double J_EE;
   double J_EI;
   double J_IE;
