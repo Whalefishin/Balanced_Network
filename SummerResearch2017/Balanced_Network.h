@@ -133,9 +133,9 @@ public:
 
   //The same update function, but only records the data
   //for the EM plot.
-  void update2();
-
-  void update3();
+  //Outdated now.
+  //void update2();
+  //void update3();
 
   void addEI_Ratios();
 

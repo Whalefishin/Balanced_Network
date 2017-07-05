@@ -216,7 +216,7 @@ pair<double,double> Balanced_Network::getEM_data_inh2(){
 double Balanced_Network::getMeanExcThreshold(){
   vector<double> thresholds;
   for(int i=0;i<meanExcThresholdTimeSeries.size();i++){
-    thresholds.push_back(meanExcThresholdTimeSeries[i].second);
+    thresholds.push_back(meanExcThresholdTimeSeries[i].second/N_E);
   }
   return mean(thresholds);
 }
@@ -224,7 +224,7 @@ double Balanced_Network::getMeanExcThreshold(){
 double Balanced_Network::getMeanInhThreshold(){
   vector<double> thresholds;
   for(int i=0;i<meanInhThresholdTimeSeries.size();i++){
-    thresholds.push_back(meanInhThresholdTimeSeries[i].second);
+    thresholds.push_back(meanInhThresholdTimeSeries[i].second/N_I);
   }
   return mean(thresholds);
 }
@@ -535,8 +535,8 @@ void Balanced_Network::update(Neuron* neuron_to_record){
     }
 
     //SFA stuff
-    //neuron_to_update->updateThresholdDiscrete(time, timeElapsed);
-    //neuron_to_update->last_update_time = time;
+    neuron_to_update->updateThresholdDiscrete(true, time, timeElapsed);
+    neuron_to_update->last_update_time = time;
 
 
     //for mean Threshold
@@ -551,6 +551,8 @@ void Balanced_Network::update(Neuron* neuron_to_record){
     //checkActiveNeurons(99,100);
 
     //cout << neuron_Vector[94]->state << endl;
+
+
     //Mean Activity stuff
     //this says "if the updated neuron went from rest to active"
     if (neuron_to_update->previous_state ==0 &&
@@ -559,11 +561,13 @@ void Balanced_Network::update(Neuron* neuron_to_record){
         pair<double,double> data(time,
           excitatoryActivityTimeSeries.back().second+1);
         excitatoryActivityTimeSeries.push_back(data);
+        excUpdateCount++;
       }
       else if (neuron_to_update->population == "I"){
         pair<double,double> data(time,
           inhibitoryActivityTimeSeries.back().second+1);
         inhibitoryActivityTimeSeries.push_back(data);
+        inhUpdateCount++;
       }
     }
     //this says "else if the updated neuron went from active to rest"
@@ -573,11 +577,13 @@ void Balanced_Network::update(Neuron* neuron_to_record){
         pair<double,double> data(time,
           excitatoryActivityTimeSeries.back().second-1);
         excitatoryActivityTimeSeries.push_back(data);
+        excUpdateCount++;
       }
       else if (neuron_to_update->population == "I"){
         pair<double,double> data(time,
           inhibitoryActivityTimeSeries.back().second-1);
         inhibitoryActivityTimeSeries.push_back(data);
+        inhUpdateCount++;
       }
     }
     else{
@@ -585,11 +591,13 @@ void Balanced_Network::update(Neuron* neuron_to_record){
         pair<double,double> data(time,
           excitatoryActivityTimeSeries.back().second);
         excitatoryActivityTimeSeries.push_back(data);
+        excUpdateCount++;
       }
       else if (neuron_to_update->population == "I"){
         pair<double,double> data(time,
           inhibitoryActivityTimeSeries.back().second);
         inhibitoryActivityTimeSeries.push_back(data);
+        inhUpdateCount++;
       }
     }
 
@@ -608,7 +616,8 @@ void Balanced_Network::update(Neuron* neuron_to_record){
 
 
 
-
+//the below two functions are pretty much obselete
+/*
 void Balanced_Network::update2(){
   if (neuron_Vector.size()==0){
     throw runtime_error("There are currently no neurons in the network.");
@@ -661,8 +670,6 @@ void Balanced_Network::update2(){
 
 
 }
-
-
 void Balanced_Network::update3(){
   if (neuron_Vector.size()==0){
     throw runtime_error("There are currently no neurons in the network.");
@@ -767,7 +774,7 @@ void Balanced_Network::update3(){
     }
 
 }
-
+*/
 
 
 

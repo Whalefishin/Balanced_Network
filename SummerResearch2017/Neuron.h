@@ -21,7 +21,7 @@ public:
   void fire();
   void rest();
   void updateThresholdSmooth(double currentTime);
-  void updateThresholdDiscrete(double currentTime, double timeElapsed);
+  void updateThresholdDiscrete(bool value, double currentTime, double timeElapsed);
 
   bool operator ==(const Neuron& n){
     if (number == n.number && population == n.population){

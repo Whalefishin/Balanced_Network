@@ -35,11 +35,11 @@ const int update_steps = 1;
 const int update_times_Scale = 1500000;
 
 const double Num_Scale1 = 1;
-const double Num_Scale2 = 50;
+const double Num_Scale2 = 10;
 const double externalRateFactor = 1;
 
 const double adaptation_jump = 0.3;
-const double decay_constant = 0.5;
+const double decay_constant = 0.3;
 
 
 //If you wish to change the neuronal constants, you have to
@@ -125,21 +125,26 @@ vector<pair<double,double>> inh_mean_threshold = neural_network->getMeanInhThres
 
 
 
-//Adaptation Gain - Lamba vs. EI ratios
+//Adaptation Scaling - Lamba vs. EI ratios
 vector<double> lambaVector;
 vector<double> meanEIratioVector;
 vector<double> standardDeviationEIratioVector;
 
-//Adaptation Gain - Phi vs. EI ratios
+//Adaptation Scaling - Phi vs. EI ratios
 vector<double> phiVector;
 
+//Adaptation Scaling - Lamba & Phi vs. Mean threshold
+vector<double> meanExcThresholdVector;
+vector<double> meanInhThresholdVector;
 
 //External Input vs. Mean Atv
-
 
 vector<pair<double,double>> EM_dataVector_excitatory;
 vector<pair<double,double>> EM_dataVector_inhibitory;
 
+
+
+//Constructing a collection of networks
 vector<Balanced_Network*> Collection;
 
 for (int j=1;j<=Num_Scale1;j++){
@@ -149,42 +154,24 @@ for (int i=1;i<=Num_Scale2;i++){
   Balanced_Network* toInsert = new
   Balanced_Network(Num_Excitatory_Neurons_Scale,Num_Inhibitory_Neurons_Scale
     , K_Scale,J_EE, J_EI, J_IE, J_II,
-    i*0.02, adaptation_jump,decay_constant);
+    externalRateFactor, i*0.1,decay_constant);
   Collection.push_back(toInsert);
 }
 }
 
-//the first way of computing the mean activity
-/*
-for (int i=0;i<10;i++){
-  for (int j=0;j<update_times_for_EM;j++){
-    Collection[i]->update2();
-  }
-  pair<double,double> dataPointExc = Collection[i]->getEM_data_exc();
-  pair<double,double> dataPointInh = Collection[i]->getEM_data_inh();
-  EM_dataVector_excitatory.push_back(dataPointExc);
-  EM_dataVector_inhibitory.push_back(dataPointInh);
-}
-*/
-
-//the second way of computing the mean activity
+//Updating the collection of networks
 for (int i=0;i<Num_Scale1*Num_Scale2;i++){
   for (int j=0;j<update_times_Scale;j++){
-    //Population gain
-    //Collection[i]->update3();
-
-    //Adaptation Gain - Lamba vs. EI ratios
     Neuron* temp = Collection[i]->chooseRandomNeuron();
     Collection[i]->update(temp);
   }
-  //pop gain
+  //population gain
   pair<double,double> dataPointExc = Collection[i]->getEM_data_exc2();
   pair<double,double> dataPointInh = Collection[i]->getEM_data_inh2();
   EM_dataVector_excitatory.push_back(dataPointExc);
   EM_dataVector_inhibitory.push_back(dataPointInh);
 
   //Adaptation Scaling - Lamba & Phi vs. EI ratios
-
   Collection[i]->addEI_Ratios();
   phiVector.push_back(Collection[i]->phi);
   lambaVector.push_back(Collection[i]->lamba);
@@ -192,6 +179,9 @@ for (int i=0;i<Num_Scale1*Num_Scale2;i++){
   standardDeviationEIratioVector.push_back(
     standardDeviation(Collection[i]->getEI_Ratios()));
 
+  //Adaptation Scaling - Lamba & Phi vs. Mean Threshold
+  meanExcThresholdVector.push_back(Collection[i]->getMeanExcThreshold());
+  meanInhThresholdVector.push_back(Collection[i]->getMeanInhThreshold());
 }
 
 
@@ -235,6 +225,9 @@ ofstream adaptationGainTxt4("Data/Adaptation_EI_Ratios_SD.txt");
 
 ofstream plateauTimeTxt("Data/Plateau_Times.txt");
 ofstream plateauNeuronsTxt("Data/Plateau_Neurons.txt");
+
+ofstream adaptationGainTxt5("Data/Adaptation_Exc_MeanThreshold.txt");
+ofstream adaptationGainTxt6("Data/Adaptation_Inh_MeanThreshold.txt");
 
 
 //Inputs
@@ -306,23 +299,19 @@ for(int i=0;i<inh_mean_threshold.size();i++){
 }
 
 
-//Adaptation Gain - Lamba vs. EI ratios
+//Adaptation Scaling - Lamba & Phi vs. EI ratios/ Mean threshold
 
 for (int i=0;i<meanEIratioVector.size();i++){
   adaptationGainTxt1 << lambaVector[i] << endl;
   adaptationGainTxt2 << meanEIratioVector[i] << endl;
   adaptationGainTxt3 << phiVector[i]<< endl;
   adaptationGainTxt4 << standardDeviationEIratioVector[i] << endl;
+  adaptationGainTxt5 << meanExcThresholdVector[i] << endl;
+  adaptationGainTxt6 << meanInhThresholdVector[i] << endl;
 }
 
 
-//Adaptation Gain - Phi vs. EI ratios
-/*
-for (int i=0;i<phiVector.size();i++){
-  adaptationGainTxt3 << phiVector[i]<< endl;
-  adaptationGainTxt2 << meanEIratioVector[i] << endl;
-}
-*/
+
 
 //Investigate plateau region
 for (int i=0;i<neural_network->activeNeurons.size();i++){

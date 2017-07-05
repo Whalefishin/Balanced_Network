@@ -114,13 +114,14 @@ void Neuron::updateThresholdSmooth(double currentTime){
   }
 }
 
-void Neuron::updateThresholdDiscrete(double currentTime, double timeElapsed){
+void Neuron::updateThresholdDiscrete(bool value, double currentTime, double timeElapsed){
 /*
   if (last_spike_time ==0){
     //basically do nothing, because the neuron has
     //not spiked a single time yet
     thresholdVector.push_back(threshold);
   }*/
+  if (value == true){
   if (state == 1){
     threshold = original_threshold + (threshold-
     original_threshold)*exp(-decay_constant*timeElapsed);
@@ -134,4 +135,5 @@ void Neuron::updateThresholdDiscrete(double currentTime, double timeElapsed){
     //record
     thresholdVector.push_back(threshold);
   }
+}
 }
