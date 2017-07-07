@@ -19,11 +19,11 @@ int main(){
 srand(6);
 
 //Various paramaters
-const double Num_Excitatory_Neurons = 8;
-const double Num_Inhibitory_Neurons = 2;
+const double Num_Excitatory_Neurons = 4;
+const double Num_Inhibitory_Neurons = 1;
 const double Num_Excitatory_Neurons_Scale = 4000;
 const double Num_Inhibitory_Neurons_Scale = 1000;
-const double K = 200;
+const double K = 10;
 const double K_Scale = 100;
 
 const double m_0 = 0.5;
@@ -34,10 +34,10 @@ const double J_EI = -2;
 const double J_IE = 1;
 const double J_II = -1.8;
 
-const int update_steps = 1;
+const int update_steps = 5;
 const int update_times_Scale = 5000*300;
 
-const double Num_Scale1 = 1;
+const double Num_Scale1 = 10;
 const double Num_Scale2 = 20;
 
 const double externalRateFactor = 1;
@@ -120,7 +120,6 @@ vector<double> EI_ratios = neural_network->getEI_Ratios();
 vector<pair<double,double>> exc_mean = neural_network->getExcMeanAtv();
 vector<pair<double,double>> inh_mean = neural_network->getInhMeanAtv();
 
-
 //Mean threshold
 
 vector<pair<double,double>> exc_mean_threshold = neural_network->getMeanExcThresholdTimeSeries();
@@ -130,8 +129,14 @@ vector<pair<double,double>> inh_mean_threshold = neural_network->getMeanInhThres
 
 //Adaptation Scaling - lambda vs. EI ratios
 vector<double> lambdaVector;
+
 vector<double> meanEIratioVector;
+vector<double> meanInhEIratioVector;
+vector<double> meanExcEIratioVector;
+
 vector<double> standardDeviationEIratioVector;
+vector<double> standardDeviationInhEIratioVector;
+vector<double> standardDeviationExcEIratioVector;
 
 //Adaptation Scaling - Phi vs. EI ratios
 vector<double> phiVector;
@@ -139,11 +144,16 @@ vector<double> phiVector;
 //Adaptation Scaling - lambda & Phi vs. Mean threshold
 vector<double> meanExcThresholdVector;
 vector<double> meanInhThresholdVector;
+vector<double> meanThresholdVector;
+vector<double> sdExcThresholdVector;
+vector<double> sdInhThresholdVector;
+vector<double> sdThresholdVector;
 
-//External Input vs. Mean Atv
-
+//Population Gain
 vector<pair<double,double>> EM_dataVector_excitatory;
 vector<pair<double,double>> EM_dataVector_inhibitory;
+vector<double> gain_Exc_SD;
+vector<double> gain_Inh_SD;
 
 
 
@@ -157,7 +167,7 @@ for (int i=1;i<=Num_Scale2;i++){
   Balanced_Network* toInsert = new
   Balanced_Network(Num_Excitatory_Neurons_Scale,Num_Inhibitory_Neurons_Scale
     , K_Scale,J_EE, J_EI, J_IE, J_II,m_0_Scale,
-    i*0.07, adaptation_jump,decay_constant);
+    externalRateFactor, 1+j*0.1,i*0.01);
   Collection.push_back(toInsert);
 }
 }
@@ -173,18 +183,31 @@ for (int i=0;i<Num_Scale1*Num_Scale2;i++){
   pair<double,double> dataPointInh = Collection[i]->getEM_data_inh2();
   EM_dataVector_excitatory.push_back(dataPointExc);
   EM_dataVector_inhibitory.push_back(dataPointInh);
+  gain_Exc_SD.push_back(Collection[i]->getEM_data_exc_sd());
+  gain_Inh_SD.push_back(Collection[i]->getEM_data_inh_sd());
 
   //Adaptation Scaling - lambda & Phi vs. EI ratios
   Collection[i]->addEI_Ratios();
   phiVector.push_back(Collection[i]->phi);
   lambdaVector.push_back(Collection[i]->lambda);
   meanEIratioVector.push_back(mean(Collection[i]->getEI_Ratios()));
+  meanExcEIratioVector.push_back(mean(Collection[i]->getExcEI_Ratios()));
+  meanInhEIratioVector.push_back(mean(Collection[i]->getInhEI_Ratios()));
   standardDeviationEIratioVector.push_back(
     standardDeviation(Collection[i]->getEI_Ratios()));
+  standardDeviationExcEIratioVector.push_back(
+    standardDeviation(Collection[i]->getExcEI_Ratios()));
+  standardDeviationInhEIratioVector.push_back(standardDeviation(
+    Collection[i]->getInhEI_Ratios()));
 
   //Adaptation Scaling - lambda & Phi vs. Mean Threshold
   meanExcThresholdVector.push_back(Collection[i]->getMeanExcThreshold());
   meanInhThresholdVector.push_back(Collection[i]->getMeanInhThreshold());
+  meanThresholdVector.push_back(Collection[i]->getMeanThreshold());
+  //SD part
+  sdExcThresholdVector.push_back(Collection[i]->getExcThresholdSD());
+  sdInhThresholdVector.push_back(Collection[i]->getInhThresholdSD());
+  sdThresholdVector.push_back(Collection[i]->getThresholdSD());
 }
 
 
@@ -210,6 +233,8 @@ ofstream excEMAtvTxt("Data/Exc_EM_activity.txt");
 ofstream excEMRateTxt("Data/Exc_EM_external_rate.txt");
 ofstream inhEMAtvtxt("Data/Inh_EM_activity.txt");
 ofstream inhEMRateTxt("Data/Inh_EM_external_rate.txt");
+ofstream excEMSDTxt("Data/Exc_EM_SD.txt");
+ofstream inhEMSDTxt("Data/Inh_EM_SD.txt");
 
 ofstream thresholdTxt("Data/Threshold.txt");
 ofstream spikeTimesTxt("Data/Spike_times.txt");
@@ -231,6 +256,17 @@ ofstream plateauNeuronsTxt("Data/Plateau_Neurons.txt");
 
 ofstream adaptationGainTxt5("Data/Adaptation_Exc_MeanThreshold.txt");
 ofstream adaptationGainTxt6("Data/Adaptation_Inh_MeanThreshold.txt");
+ofstream adaptationGainTxt7("Data/Adaptation_MeanThreshold.txt");
+
+ofstream adaptationGainTxt8("Data/Adaptation_Exc_ThresholdSD.txt");
+ofstream adaptationGainTxt9("Data/Adaptation_Inh_ThresholdSD.txt");
+ofstream adaptationGainTxt10("Data/Adaptation_ThresholdSD.txt");
+
+ofstream adaptationGainTxt11("Data/Adaptation_Exc_EI_Ratio_Mean.txt");
+ofstream adaptationGainTxt12("Data/Adaptation_Inh_EI_Ratio_Mean.txt");
+ofstream adaptationGainTxt13("Data/Adaptation_Exc_EI_Ratio_SD.txt");
+ofstream adaptationGainTxt14("Data/Adaptation_Inh_EI_Ratio_SD.txt");
+
 
 
 //Inputs
@@ -274,6 +310,8 @@ for (int i=0;i<EM_dataVector_excitatory.size();i++){
   excEMAtvTxt << EM_dataVector_excitatory[i].second << endl;
   inhEMRateTxt << EM_dataVector_inhibitory[i].first << endl;
   inhEMAtvtxt << EM_dataVector_inhibitory[i].second << endl;
+  excEMSDTxt << gain_Exc_SD[i] << endl;
+  inhEMSDTxt << gain_Inh_SD[i]<< endl;
 }
 
 
@@ -311,6 +349,14 @@ for (int i=0;i<meanEIratioVector.size();i++){
   adaptationGainTxt4 << standardDeviationEIratioVector[i] << endl;
   adaptationGainTxt5 << meanExcThresholdVector[i] << endl;
   adaptationGainTxt6 << meanInhThresholdVector[i] << endl;
+  adaptationGainTxt7 << meanThresholdVector[i]<< endl;
+  adaptationGainTxt8 << sdExcThresholdVector[i] << endl;
+  adaptationGainTxt9 << sdInhThresholdVector[i] << endl;
+  adaptationGainTxt10 << sdThresholdVector[i] << endl;
+  adaptationGainTxt11 << meanExcEIratioVector[i]<<endl;
+  adaptationGainTxt12 << meanInhEIratioVector[i] << endl;
+  adaptationGainTxt13 << standardDeviationExcEIratioVector[i] << endl;
+  adaptationGainTxt14 << standardDeviationInhEIratioVector[i] << endl;
 }
 
 

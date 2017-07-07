@@ -157,6 +157,14 @@ vector<double> Balanced_Network::getEI_Ratios(){
   return EI_Ratio_Collection;
 }
 
+vector<double> Balanced_Network::getInhEI_Ratios(){
+  return EI_Ratio_Collection_Inh;
+}
+
+vector<double> Balanced_Network::getExcEI_Ratios(){
+  return EI_Ratio_Collection_Exc;
+}
+
 vector<pair<double,double>> Balanced_Network::getExcMeanAtv(){
   return excitatoryActivityTimeSeries;
 }
@@ -214,6 +222,25 @@ pair<double,double> Balanced_Network::getEM_data_inh2(){
   return toReturn;
 }
 
+double Balanced_Network::getEM_data_exc_sd(){
+  vector<double> data;
+  for (int i=1600;i<excitatoryActivityTimeSeries.size();i++){
+    data.push_back(excitatoryActivityTimeSeries[i].second/N_E);
+  }
+  return standardDeviation(data);
+}
+
+
+
+double Balanced_Network::getEM_data_inh_sd(){
+  vector<double> data;
+  for (int i=400;i<inhibitoryActivityTimeSeries.size();i++){
+    data.push_back(inhibitoryActivityTimeSeries[i].second/N_I);
+  }
+  return standardDeviation(data);
+}
+
+
 double Balanced_Network::getMeanExcThreshold(){
   vector<double> thresholds;
   for(int i=0;i<meanExcThresholdTimeSeries.size();i++){
@@ -228,6 +255,44 @@ double Balanced_Network::getMeanInhThreshold(){
     thresholds.push_back(meanInhThresholdTimeSeries[i].second/N_I);
   }
   return mean(thresholds);
+}
+
+double Balanced_Network::getMeanThreshold(){
+  vector<double> thresholds;
+  for (int i=0;i<meanExcThresholdTimeSeries.size();i++){
+    thresholds.push_back(meanExcThresholdTimeSeries[i].second/N_E);
+  }
+  for (int i=0;i<meanInhThresholdTimeSeries.size();i++){
+    thresholds.push_back(meanInhThresholdTimeSeries[i].second/N_I);
+  }
+  return mean(thresholds);
+}
+
+double Balanced_Network::getExcThresholdSD(){
+  vector<double> thresholds;
+  for (int i=0;i<meanExcThresholdTimeSeries.size();i++){
+    thresholds.push_back(meanExcThresholdTimeSeries[i].second/N_E);
+  }
+  return standardDeviation(thresholds);
+}
+
+double Balanced_Network::getInhThresholdSD(){
+  vector<double> thresholds;
+  for (int i=0;i<meanInhThresholdTimeSeries.size();i++){
+    thresholds.push_back(meanInhThresholdTimeSeries[i].second/N_I);
+  }
+  return standardDeviation(thresholds);
+}
+
+double Balanced_Network::getThresholdSD(){
+  vector<double> thresholds;
+  for (int i=0;i<meanExcThresholdTimeSeries.size();i++){
+    thresholds.push_back(meanExcThresholdTimeSeries[i].second/N_E);
+  }
+  for (int i=0;i<meanInhThresholdTimeSeries.size();i++){
+    thresholds.push_back(meanInhThresholdTimeSeries[i].second/N_I);
+  }
+  return standardDeviation(thresholds);
 }
 
 vector<pair<double,double>> Balanced_Network::getMeanExcThresholdTimeSeries(){
@@ -788,6 +853,14 @@ void Balanced_Network::addEI_Ratios(){
     EI_Ratio_Collection.push_back(neuron_Vector[i]->EI_Ratio_Exc/
     neuron_Vector[i]->EI_Ratio_Inh);
     */
+  }
+  for (int i=0;i<N_E;i++){
+    EI_Ratio_Collection_Exc.push_back(neuron_Vector[i]->EI_Ratio
+      / neuron_Vector[i]->update_count);
+  }
+  for (int i=N_E;i<neuron_Vector.size();i++){
+    EI_Ratio_Collection_Inh.push_back(neuron_Vector[i]->EI_Ratio
+    / neuron_Vector[i]->update_count);
   }
 }
 

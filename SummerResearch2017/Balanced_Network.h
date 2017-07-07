@@ -46,16 +46,27 @@ public:
   double getTime();
 
   vector<double> getEI_Ratios();
+  vector<double> getExcEI_Ratios();
+  vector<double> getInhEI_Ratios();
+
   vector<pair<double,double>> getExcMeanAtv();
   vector<pair<double,double>> getInhMeanAtv();
+
   pair<double,double> getEM_data_exc();
   pair<double,double> getEM_data_inh();
 
   pair<double,double> getEM_data_exc2();
   pair<double,double> getEM_data_inh2();
 
+  double getEM_data_exc_sd();
+  double getEM_data_inh_sd();
+
   double getMeanInhThreshold();
   double getMeanExcThreshold();
+  double getMeanThreshold();
+  double getExcThresholdSD();
+  double getInhThresholdSD();
+  double getThresholdSD();
 
   vector<pair<double,double>> getMeanExcThresholdTimeSeries();
   vector<pair<double,double>> getMeanInhThresholdTimeSeries();
@@ -188,6 +199,8 @@ private:
 
   //EI ratio and ISI recording
   vector<double> EI_Ratio_Collection;
+  vector<double> EI_Ratio_Collection_Exc;
+  vector<double> EI_Ratio_Collection_Inh;
   vector<double> network_ISI;
   vector<pair<double,double>> excitatoryActivityTimeSeries;
   vector<pair<double,double>> inhibitoryActivityTimeSeries;
