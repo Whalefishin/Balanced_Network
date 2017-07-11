@@ -506,12 +506,30 @@ void Balanced_Network::update(Neuron* neuron_to_record){
   if (neuron_Vector.size()==0){
     throw runtime_error("There are currently no neurons in the network.");
   }
-
-  //for adapatation
-  double timeElapsed;
-
   //choose the minimum one to update(Max of the negatives)
   Neuron* neuron_to_update = minimum_time_queue->removeMax();
+
+  //for mean Threshold
+  if (neuron_to_update->population == "E"){
+    pair<double,double> dataToPush(time,
+      meanExcThresholdTimeSeries.back().second - neuron_to_update->threshold);
+      meanExcThresholdTimeSeries.push_back(dataToPush);
+  }
+  else {
+    pair<double,double> dataToPush(time,
+      meanInhThresholdTimeSeries.back().second - neuron_to_update->threshold);
+      meanInhThresholdTimeSeries.push_back(dataToPush);
+  }
+
+  //SFA stuff - decay
+  double timeElapsed = time - neuron_to_update->last_update_time;
+
+  neuron_to_update->threshold = neuron_to_update->original_threshold +
+  (neuron_to_update->threshold - neuron_to_update->original_threshold)*
+  exp(-neuron_to_update->decay_constant*timeElapsed);
+
+  neuron_to_update->last_update_time = time;
+
 
   //reset the total input to the neuron being updated to zero.
   neuron_to_update->totalInput = 0;
@@ -544,6 +562,20 @@ void Balanced_Network::update(Neuron* neuron_to_record){
     neuron_to_update->state =
     Heaviside(neuron_to_update->totalInput- neuron_to_update->threshold);
 
+    //SFA stuff - jump
+    neuron_to_update->threshold += neuron_to_update->state*
+    neuron_to_update->adaptation_jump;
+    neuron_to_update->thresholdVector.push_back(neuron_to_update->threshold);
+
+    //for mean Threshold
+    if (neuron_to_update->population == "E"){
+      meanExcThresholdTimeSeries.back().second += neuron_to_update->threshold;
+    }
+    else {
+      meanInhThresholdTimeSeries.back().second += neuron_to_update->threshold;
+    }
+    //cout << meanExcThresholdTimeSeries.back().second << endl;
+
     //EM plot stuff(sixth plot)
     //neuron_to_update->stateSum += neuron_to_update->state;
 
@@ -560,7 +592,7 @@ void Balanced_Network::update(Neuron* neuron_to_record){
 
     //update the network time
     time = neuron_to_update->time_to_be_updated;
-    timeElapsed = time - neuron_to_update->last_update_time;
+    //timeElapsed = time - neuron_to_update->last_update_time;
 
     //update the neuron time
     neuron_to_update->update_time_to_be_updated();
@@ -570,18 +602,6 @@ void Balanced_Network::update(Neuron* neuron_to_record){
     //the number of neurons.
     minimum_time_queue->insert((-1*neuron_to_update->time_to_be_updated),neuron_to_update);
 
-
-    //for mean Threshold
-    if (neuron_to_update->population == "E"){
-      pair<double,double> dataToPush(time,
-        meanExcThresholdTimeSeries.back().second - neuron_to_update->threshold);
-        meanExcThresholdTimeSeries.push_back(dataToPush);
-    }
-    else {
-      pair<double,double> dataToPush(time,
-        meanInhThresholdTimeSeries.back().second - neuron_to_update->threshold);
-        meanInhThresholdTimeSeries.push_back(dataToPush);
-    }
 
     //ISI stuff
     if (neuron_to_update->previous_state ==0 &&
@@ -603,17 +623,11 @@ void Balanced_Network::update(Neuron* neuron_to_record){
     }
 
     //SFA stuff
-    neuron_to_update->updateThresholdDiscrete(true, time, timeElapsed);
-    neuron_to_update->last_update_time = time;
+    //neuron_to_update->updateThresholdDiscrete(true, timeElapsed);
+    //neuron_to_update->last_update_time = time;
 
 
-    //for mean Threshold
-    if (neuron_to_update->population == "E"){
-      meanExcThresholdTimeSeries.back().second += neuron_to_update->threshold;
-    }
-    else {
-      meanInhThresholdTimeSeries.back().second += neuron_to_update->threshold;
-    }
+
 
     //studying the plateau region, not really necessary now.
     //checkActiveNeurons(99,100);

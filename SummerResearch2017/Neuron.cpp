@@ -39,6 +39,8 @@ Neuron::Neuron(int number, string population, double K, double m_0,
     externalInput = externalRateFactor*1*m_0*sqrt(K);
     tau = 1;
     vectorNumber = number-1;
+    //decay_constant = lambda*tau*2;
+
   }
   else if (population == "I"){
     threshold = 0.7;
@@ -46,6 +48,7 @@ Neuron::Neuron(int number, string population, double K, double m_0,
     externalInput = externalRateFactor*0.8*m_0*sqrt(K);
     tau = 0.9;
     vectorNumber = number + N_E-1;
+    //decay_constant = lambda*tau;
   }
   //jump as a percentage of the original_threshold
   //adaptation_jump = 0.3*threshold;
@@ -116,7 +119,7 @@ void Neuron::updateThresholdSmooth(double currentTime){
   }
 }
 
-void Neuron::updateThresholdDiscrete(bool value, double currentTime, double timeElapsed){
+void Neuron::updateThresholdDiscrete(bool value,double timeElapsed){
 /*
   if (last_spike_time ==0){
     //basically do nothing, because the neuron has
@@ -125,9 +128,9 @@ void Neuron::updateThresholdDiscrete(bool value, double currentTime, double time
   }*/
   if (value == true){
   if (state == 1){
+    threshold += adaptation_jump;
     threshold = original_threshold + (threshold-
     original_threshold)*exp(-decay_constant*timeElapsed);
-    threshold += adaptation_jump;
     thresholdVector.push_back(threshold);
   }
   else if (state ==0){
