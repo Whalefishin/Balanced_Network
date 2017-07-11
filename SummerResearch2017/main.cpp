@@ -390,7 +390,7 @@ parametersTxt << "Number of networks: " + to_string(Num_Scale2*Num_Scale1) << en
 parametersTxt << "Number of neurons: " + to_string(Num_Excitatory_Neurons_Scale+ Num_Inhibitory_Neurons_Scale) << endl;
 parametersTxt << "K: " + to_string(K_Scale) << endl;
 parametersTxt << "Number of updates: " + to_string(update_times_Scale) << endl;
-
+parametersTxt << "m_0_Scale: " + to_string(m_0_Scale) << endl;
 
 
 //Testing out 95E
