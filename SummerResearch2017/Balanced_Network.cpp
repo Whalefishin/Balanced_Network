@@ -509,6 +509,18 @@ void Balanced_Network::update(Neuron* neuron_to_record){
   //choose the minimum one to update(Max of the negatives)
   Neuron* neuron_to_update = minimum_time_queue->removeMax();
 
+  //update the network time
+  time = neuron_to_update->time_to_be_updated;
+
+  //update the neuron time
+  neuron_to_update->update_time_to_be_updated();
+
+  //insert the new update time into the priority queue
+  //The queue always has the number of elements equal to
+  //the number of neurons.
+  minimum_time_queue->insert((-1*neuron_to_update->time_to_be_updated),neuron_to_update);
+
+
   //for mean Threshold
   if (neuron_to_update->population == "E"){
     pair<double,double> dataToPush(time,
@@ -580,16 +592,17 @@ void Balanced_Network::update(Neuron* neuron_to_record){
     //neuron_to_update->stateSum += neuron_to_update->state;
 
     //EI ratio stuff(second plot)
-    /*
-    neuron_to_update->EI_Ratio_Exc += neuron_to_update->totalExcitatoryInput;
-    neuron_to_update->EI_Ratio_Inh += neuron_to_update->totalInhibitoryInput;
-    */
     if (neuron_to_update->totalInhibitoryInput!=0){
       neuron_to_update->EI_Ratio += (neuron_to_update->totalExcitatoryInput/
       neuron_to_update->totalInhibitoryInput);
       neuron_to_update->update_count++;
     }
+    /*
+    neuron_to_update->EI_Ratio_Exc += neuron_to_update->totalExcitatoryInput;
+    neuron_to_update->EI_Ratio_Inh += neuron_to_update->totalInhibitoryInput;
+    */
 
+/*
     //update the network time
     time = neuron_to_update->time_to_be_updated;
     //timeElapsed = time - neuron_to_update->last_update_time;
@@ -601,7 +614,7 @@ void Balanced_Network::update(Neuron* neuron_to_record){
     //The queue always has the number of elements equal to
     //the number of neurons.
     minimum_time_queue->insert((-1*neuron_to_update->time_to_be_updated),neuron_to_update);
-
+*/
 
     //ISI stuff
     if (neuron_to_update->previous_state ==0 &&

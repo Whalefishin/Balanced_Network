@@ -19,11 +19,11 @@ int main(){
 srand(6);
 
 //Various paramaters
-const double Num_Excitatory_Neurons = 8000;
-const double Num_Inhibitory_Neurons = 2000;
-const double Num_Excitatory_Neurons_Scale = 4;
-const double Num_Inhibitory_Neurons_Scale = 1;
-const double K = 200;
+const double Num_Excitatory_Neurons = 800;
+const double Num_Inhibitory_Neurons = 200;
+const double Num_Excitatory_Neurons_Scale = 3;
+const double Num_Inhibitory_Neurons_Scale = 2;
+const double K = 20;
 const double K_Scale = 100;
 
 const double m_0 = 0.5;
@@ -34,15 +34,15 @@ const double J_EI = -2;
 const double J_IE = 1;
 const double J_II = -1.8;
 
-const int update_steps = 10000*300;
-const int update_times_Scale = 4;
+const int update_steps = 1000*300;
+const int update_times_Scale = 5;
 
 const double Num_Scale1 = 1;
-const double Num_Scale2 = 1;
+const double Num_Scale2 = 10;
 
 const double externalRateFactor = 1;
-const double adaptation_jump = 0.3;
-const double decay_constant = 0.01;
+const double adaptation_jump = 1;
+const double decay_constant = 0.1;
 
 
 //If you wish to change the neuronal constants, you have to
@@ -167,7 +167,7 @@ for (int i=1;i<=Num_Scale2;i++){
   Balanced_Network* toInsert = new
   Balanced_Network(Num_Excitatory_Neurons_Scale,Num_Inhibitory_Neurons_Scale
     , K_Scale,J_EE, J_EI, J_IE, J_II,m_0_Scale,
-    i*0.06, adaptation_jump,decay_constant);
+    externalRateFactor, i*0.1,decay_constant);
   Collection.push_back(toInsert);
 }
 }
