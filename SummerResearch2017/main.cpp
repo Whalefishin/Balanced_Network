@@ -26,7 +26,7 @@ const double Num_Inhibitory_Neurons_Scale = 2;
 const double K = 20;
 const double K_Scale = 100;
 
-const double m_0 = 0.5;
+const double m_0 = 0.3;
 const double m_0_Scale = 0.2;
 
 const double J_EE = 1;
@@ -41,8 +41,8 @@ const double Num_Scale1 = 1;
 const double Num_Scale2 = 10;
 
 const double externalRateFactor = 1;
-const double adaptation_jump = 1;
-const double decay_constant = 0.1;
+const double adaptation_jump = 0.3;
+const double decay_constant = 0.2;
 
 
 //If you wish to change the neuronal constants, you have to
