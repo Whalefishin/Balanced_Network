@@ -19,14 +19,14 @@ int main(){
 srand(6);
 
 //Various paramaters
-const double Num_Excitatory_Neurons = 800;
-const double Num_Inhibitory_Neurons = 200;
-const double Num_Excitatory_Neurons_Scale = 3;
-const double Num_Inhibitory_Neurons_Scale = 2;
-const double K = 20;
+const double Num_Excitatory_Neurons = 4000;
+const double Num_Inhibitory_Neurons = 1000;
+const double Num_Excitatory_Neurons_Scale = 4000;
+const double Num_Inhibitory_Neurons_Scale = 1000;
+const double K = 100;
 const double K_Scale = 100;
 
-const double m_0 = 0.3;
+const double m_0 = 0.2;
 const double m_0_Scale = 0.2;
 
 const double J_EE = 1;
@@ -34,15 +34,15 @@ const double J_EI = -2;
 const double J_IE = 1;
 const double J_II = -1.8;
 
-const int update_steps = 1000*300;
-const int update_times_Scale = 5;
+const int update_steps = 100*5000;
+const int update_times_Scale = 1;
 
 const double Num_Scale1 = 1;
 const double Num_Scale2 = 10;
 
 const double externalRateFactor = 1;
-const double adaptation_jump = 0.3;
-const double decay_constant = 0.2;
+const double adaptation_jump = 0.07;
+const double decay_constant = 0.025;
 
 
 //If you wish to change the neuronal constants, you have to
@@ -155,7 +155,11 @@ vector<pair<double,double>> EM_dataVector_inhibitory;
 vector<double> gain_Exc_SD;
 vector<double> gain_Inh_SD;
 
-
+//limit data
+vector<double> m_exc_inf_vector;
+vector<double> m_inh_inf_vector;
+vector<double> theta_exc_inf_vector;
+vector<double> theta_inh_inf_vector;
 
 //Constructing a collection of networks
 vector<Balanced_Network*> Collection;
@@ -167,7 +171,7 @@ for (int i=1;i<=Num_Scale2;i++){
   Balanced_Network* toInsert = new
   Balanced_Network(Num_Excitatory_Neurons_Scale,Num_Inhibitory_Neurons_Scale
     , K_Scale,J_EE, J_EI, J_IE, J_II,m_0_Scale,
-    externalRateFactor, i*0.1,decay_constant);
+    externalRateFactor, j*0.07,i*0.025);
   Collection.push_back(toInsert);
 }
 }
@@ -208,6 +212,12 @@ for (int i=0;i<Num_Scale1*Num_Scale2;i++){
   sdExcThresholdVector.push_back(Collection[i]->getExcThresholdSD());
   sdInhThresholdVector.push_back(Collection[i]->getInhThresholdSD());
   sdThresholdVector.push_back(Collection[i]->getThresholdSD());
+
+  //limit data
+  m_exc_inf_vector.push_back(Collection[i]->getM_exc_inf());
+  m_inh_inf_vector.push_back(Collection[i]->getM_inh_inf());
+  theta_exc_inf_vector.push_back(Collection[i]->getTheta_exc_inf());
+  theta_inh_inf_vector.push_back(Collection[i]->getTheta_inh_inf());
 }
 
 
@@ -267,7 +277,10 @@ ofstream adaptationGainTxt12("Data/Adaptation_Inh_EI_Ratio_Mean.txt");
 ofstream adaptationGainTxt13("Data/Adaptation_Exc_EI_Ratio_SD.txt");
 ofstream adaptationGainTxt14("Data/Adaptation_Inh_EI_Ratio_SD.txt");
 
-
+ofstream adaptationGainTxt15("Data/Adaptation_Exc_M_inf.txt");
+ofstream adaptationGainTxt16("Data/Adaptation_Inh_M_inf.txt");
+ofstream adaptationGainTxt17("Data/Adaptation_Exc_Theta_inf.txt");
+ofstream adaptationGainTxt18("Data/Adaptation_Inh_Theta_inf.txt");
 
 //Inputs
 //format: time, total input, excitatory input, inhibitory input
@@ -357,6 +370,10 @@ for (int i=0;i<meanEIratioVector.size();i++){
   adaptationGainTxt12 << meanInhEIratioVector[i] << endl;
   adaptationGainTxt13 << standardDeviationExcEIratioVector[i] << endl;
   adaptationGainTxt14 << standardDeviationInhEIratioVector[i] << endl;
+  adaptationGainTxt15 << m_exc_inf_vector[i]<< endl;
+  adaptationGainTxt16 << m_inh_inf_vector[i]<< endl;
+  adaptationGainTxt17 << theta_exc_inf_vector[i] << endl;
+  adaptationGainTxt18 << theta_inh_inf_vector[i] << endl;
 }
 
 

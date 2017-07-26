@@ -303,6 +303,55 @@ vector<pair<double,double>> Balanced_Network::getMeanInhThresholdTimeSeries(){
   return meanInhThresholdTimeSeries;
 }
 
+
+double Balanced_Network::getM_exc_inf(){
+  double sum =0;
+  double count =0;
+  int size = excitatoryActivityTimeSeries.size();
+  //we take an average of the last 500 data to approximate m_inf
+  for (int i=size-10000;i<size;i++){
+    sum += excitatoryActivityTimeSeries[i].second/N_E;
+    count++;
+  }
+  return sum/count;
+}
+
+double Balanced_Network::getM_inh_inf(){
+  double sum =0;
+  double count =0;
+  int size = inhibitoryActivityTimeSeries.size();
+  //we take an average of the last 500 data to approximate m_inf
+  for (int i=size-10000;i<size;i++){
+    sum += inhibitoryActivityTimeSeries[i].second/N_I;
+    count++;
+  }
+  return sum/count;
+}
+
+
+double Balanced_Network::getTheta_exc_inf(){
+  double sum =0;
+  double count =0;
+  int size = meanExcThresholdTimeSeries.size();
+  //we take an average of the last 500 data to approximate m_inf
+  for (int i=size-10000;i<size;i++){
+    sum += meanExcThresholdTimeSeries[i].second/N_E;
+    count++;
+  }
+  return sum/count;
+}
+
+double Balanced_Network::getTheta_inh_inf(){
+  double sum =0;
+  double count =0;
+  int size = meanInhThresholdTimeSeries.size();
+  //we take an average of the last 500 data to approximate m_inf
+  for (int i=size-10000;i<size;i++){
+    sum += meanInhThresholdTimeSeries[i].second/N_I;
+    count++;
+  }
+  return sum/count;
+}
 /*
 vector<double> Balanced_Network::getTime_Vector(){
   return time_vector;

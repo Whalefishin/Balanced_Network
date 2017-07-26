@@ -71,6 +71,10 @@ public:
   vector<pair<double,double>> getMeanExcThresholdTimeSeries();
   vector<pair<double,double>> getMeanInhThresholdTimeSeries();
 
+  double getM_exc_inf();
+  double getM_inh_inf();
+  double getTheta_exc_inf();
+  double getTheta_inh_inf();
 
 
   //gets the PQ for the update method.
@@ -156,6 +160,9 @@ public:
 
   double lambda;
   double phi;
+
+  double m_inf;
+  double theta_inf;
 
   //at time pair.first, we have the active neurons
   //to be the pair.second
