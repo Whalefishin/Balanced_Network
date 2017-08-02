@@ -19,12 +19,12 @@ int main(){
 srand(6);
 
 //Various paramaters
-const double Num_Excitatory_Neurons = 8000;
-const double Num_Inhibitory_Neurons = 2000;
-const double Num_Excitatory_Neurons_Scale = 4;
-const double Num_Inhibitory_Neurons_Scale = 1;
+const double Num_Excitatory_Neurons = 8;
+const double Num_Inhibitory_Neurons = 2;
+const double Num_Excitatory_Neurons_Scale = 8000;
+const double Num_Inhibitory_Neurons_Scale = 2000;
 const double K = 200;
-const double K_Scale = 100;
+const double K_Scale = 200;
 
 const double m_0 = 0.2;
 const double m_0_Scale = 0.2;
@@ -34,11 +34,11 @@ const double J_EI = -2;
 const double J_IE = 1;
 const double J_II = -1.8;
 
-const int update_steps = 200*5000;
-const int update_times_Scale = 100;
+const int update_steps = 200;
+const int update_times_Scale = 10000*300;
 
-const double Num_Scale1 = 1;
-const double Num_Scale2 = 1;
+const double Num_Scale1 = 30;
+const double Num_Scale2 = 30;
 
 const double externalRateFactor = 1;
 const double adaptation_jump = 0;
@@ -175,8 +175,9 @@ vector<double> totalInputExcSDInfVector;
 vector<double> totalInputInhSDInfVector;
 
 //Constructing a collection of networks
-vector<Balanced_Network*> Collection;
+//vector<Balanced_Network*> Collection;
 
+/*
 for (int j=1;j<=Num_Scale1;j++){
 for (int i=1;i<=Num_Scale2;i++){
   srand(6);
@@ -184,61 +185,81 @@ for (int i=1;i<=Num_Scale2;i++){
   Balanced_Network* toInsert = new
   Balanced_Network(Num_Excitatory_Neurons_Scale,Num_Inhibitory_Neurons_Scale
     , K_Scale,J_EE, J_EI, J_IE, J_II,m_0_Scale,
-    externalRateFactor, j*0.07,i*0.025);
+    externalRateFactor, j*0.1,i*0.02);
   Collection.push_back(toInsert);
 }
 }
+*/
+/*
+Balanced_Network* network_scale= new
+Balanced_Network(Num_Excitatory_Neurons_Scale,Num_Inhibitory_Neurons_Scale
+  , K_Scale,J_EE, J_EI, J_IE, J_II,m_0_Scale,
+  externalRateFactor, 0.1,0.02);
+*/
+
+Balanced_Network* network_scale;
 
 //Updating the collection of networks
-for (int i=0;i<Num_Scale1*Num_Scale2;i++){
-  for (int j=0;j<update_times_Scale;j++){
-    Neuron* temp = Collection[i]->chooseRandomNeuron();
-    Collection[i]->update2();
+for (int j=1;j<=Num_Scale1;j++){
+for (int i=1;i<=Num_Scale2;i++){
+  srand(6);
+  network_scale = new
+  Balanced_Network(Num_Excitatory_Neurons_Scale,Num_Inhibitory_Neurons_Scale
+    , K_Scale,J_EE, J_EI, J_IE, J_II,m_0_Scale,
+    externalRateFactor, j*0.1,i*0.02);
+  for (int k=0;k<update_times_Scale;k++){
+    Neuron* temp = network_scale->chooseRandomNeuron();
+    network_scale->update2();
+    //cout << 1;
   }
   //population gain
-  pair<double,double> dataPointExc = Collection[i]->getEM_data_exc2();
-  pair<double,double> dataPointInh = Collection[i]->getEM_data_inh2();
+  pair<double,double> dataPointExc = network_scale->getEM_data_exc2();
+  pair<double,double> dataPointInh = network_scale->getEM_data_inh2();
   EM_dataVector_excitatory.push_back(dataPointExc);
   EM_dataVector_inhibitory.push_back(dataPointInh);
-  gain_Exc_SD.push_back(Collection[i]->getEM_data_exc_sd());
-  gain_Inh_SD.push_back(Collection[i]->getEM_data_inh_sd());
+  gain_Exc_SD.push_back(network_scale->getEM_data_exc_sd());
+  gain_Inh_SD.push_back(network_scale->getEM_data_inh_sd());
 
   //Adaptation Scaling - lambda & Phi vs. EI ratios
-  Collection[i]->addEI_Ratios();
-  phiVector.push_back(Collection[i]->phi);
-  lambdaVector.push_back(Collection[i]->lambda);
-  meanEIratioVector.push_back(mean(Collection[i]->getEI_Ratios()));
-  meanExcEIratioVector.push_back(mean(Collection[i]->getExcEI_Ratios()));
-  meanInhEIratioVector.push_back(mean(Collection[i]->getInhEI_Ratios()));
+  network_scale->addEI_Ratios();
+  phiVector.push_back(network_scale->phi);
+  lambdaVector.push_back(network_scale->lambda);
+  meanEIratioVector.push_back(mean(network_scale->getEI_Ratios()));
+  meanExcEIratioVector.push_back(mean(network_scale->getExcEI_Ratios()));
+  meanInhEIratioVector.push_back(mean(network_scale->getInhEI_Ratios()));
   standardDeviationEIratioVector.push_back(
-    standardDeviation(Collection[i]->getEI_Ratios()));
+    standardDeviation(network_scale->getEI_Ratios()));
   standardDeviationExcEIratioVector.push_back(
-    standardDeviation(Collection[i]->getExcEI_Ratios()));
+    standardDeviation(network_scale->getExcEI_Ratios()));
   standardDeviationInhEIratioVector.push_back(standardDeviation(
-    Collection[i]->getInhEI_Ratios()));
+    network_scale->getInhEI_Ratios()));
 
   //Adaptation Scaling - lambda & Phi vs. Mean Threshold
-  meanExcThresholdVector.push_back(Collection[i]->getMeanExcThreshold());
-  meanInhThresholdVector.push_back(Collection[i]->getMeanInhThreshold());
-  meanThresholdVector.push_back(Collection[i]->getMeanThreshold());
+  meanExcThresholdVector.push_back(network_scale->getMeanExcThreshold());
+  meanInhThresholdVector.push_back(network_scale->getMeanInhThreshold());
+  meanThresholdVector.push_back(network_scale->getMeanThreshold());
   //SD part
-  sdExcThresholdVector.push_back(Collection[i]->getExcThresholdSD());
-  sdInhThresholdVector.push_back(Collection[i]->getInhThresholdSD());
-  sdThresholdVector.push_back(Collection[i]->getThresholdSD());
+  sdExcThresholdVector.push_back(network_scale->getExcThresholdSD());
+  sdInhThresholdVector.push_back(network_scale->getInhThresholdSD());
+  sdThresholdVector.push_back(network_scale->getThresholdSD());
 
   //limit data
-  m_exc_inf_vector.push_back(Collection[i]->getM_exc_inf());
-  m_inh_inf_vector.push_back(Collection[i]->getM_inh_inf());
-  theta_exc_inf_vector.push_back(Collection[i]->getTheta_exc_inf());
-  theta_inh_inf_vector.push_back(Collection[i]->getTheta_inh_inf());
+  m_exc_inf_vector.push_back(network_scale->getM_exc_inf());
+  m_inh_inf_vector.push_back(network_scale->getM_inh_inf());
+  theta_exc_inf_vector.push_back(network_scale->getTheta_exc_inf());
+  theta_inh_inf_vector.push_back(network_scale->getTheta_inh_inf());
 
   //total Inputs
-  totalInputExcMeanVector.push_back(Collection[i]->getTotalInputExcMean());
-  totalInputInhMeanVector.push_back(Collection[i]->getTotalInputInhMean());
-  totalInputExcSDVector.push_back(Collection[i]->getTotalInputExcSD());
-  totalInputInhSDVector.push_back(Collection[i]->getTotalInputInhSD());
-  totalInputExcSDInfVector.push_back(Collection[i]->getTotalInputExcSDInf());
-  totalInputInhSDInfVector.push_back(Collection[i]->getTotalInputInhSDInf());
+  totalInputExcMeanVector.push_back(network_scale->getTotalInputExcMean());
+  totalInputInhMeanVector.push_back(network_scale->getTotalInputInhMean());
+  totalInputExcSDVector.push_back(network_scale->getTotalInputExcSD());
+  totalInputInhSDVector.push_back(network_scale->getTotalInputInhSD());
+  totalInputExcSDInfVector.push_back(network_scale->getTotalInputExcSDInf());
+  totalInputInhSDInfVector.push_back(network_scale->getTotalInputInhSDInf());
+
+  //release memory
+  delete network_scale;
+}
 }
 
 
@@ -553,7 +574,7 @@ for(int i=0;i<testEdges.size();i++){
 vector<Neuron*> temp = Collection[0]->neuron_Vector;
 
 for (int i=1;i<10;i++){
-  vector<Neuron*> temp2 = Collection[i]->neuron_Vector;
+  vector<Neuron*> temp2 = network_scale->neuron_Vector;
   if (temp.size()!=temp2.size()){
     throw runtime_error("Size not the same");
   }
@@ -690,9 +711,11 @@ for (int i=0;i<nVector.size();i++){
 
 delete neural_network;
 
+/*
 for (int i=0;i<Collection.size();i++){
-  delete Collection[i];
+  delete network_scale;
 }
+*/
 
   return 0;
 }
