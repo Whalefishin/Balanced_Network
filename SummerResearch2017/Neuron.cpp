@@ -142,3 +142,39 @@ void Neuron::updateThresholdDiscrete(bool value,double timeElapsed){
   }
 }
 }
+
+double Neuron::getMeanTotalInput(){
+  double sum=0;
+  double count=0;
+  vector<pair<double,double>> vector = totalInput_timeSeries;
+  int size = vector.size();
+  for (int i=0;i<size;i++){
+    sum += vector[i].second;
+    count++;
+  }
+  return sum/count;
+}
+
+double Neuron::getMeanExcInput(){
+  double sum=0;
+  double count=0;
+  vector<pair<double,double>> vector = excitatoryInput_timeSeries;
+  int size = vector.size();
+  for (int i=0;i<size;i++){
+    sum += vector[i].second;
+    count++;
+  }
+  return sum/count;
+}
+
+double Neuron::getMeanInhInput(){
+  double sum=0;
+  double count=0;
+  vector<pair<double,double>> vector = inhibitoryInput_timeSeries;
+  int size = vector.size();
+  for (int i=0;i<size;i++){
+    sum += vector[i].second;
+    count++;
+  }
+  return sum/count;
+}

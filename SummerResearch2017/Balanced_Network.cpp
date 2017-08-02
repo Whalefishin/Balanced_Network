@@ -202,11 +202,11 @@ pair<double,double> Balanced_Network::getEM_data_exc2(){
   pair<double,double> toReturn;
   toReturn.first = (neuron_Vector[0]->externalRateFactor);
   double size = excitatoryActivityTimeSeries.size();
-  for (int i=1600;i< excitatoryActivityTimeSeries.size();i++){
+  for (int i=0;i< excitatoryActivityTimeSeries.size();i++){
     excStateSum +=excitatoryActivityTimeSeries[i].second;
   }
   //cout << excStateSum << endl;
-  toReturn.second = excStateSum/N_E/(excitatoryActivityTimeSeries.size()-1600);
+  toReturn.second = excStateSum/N_E/(excitatoryActivityTimeSeries.size());
   return toReturn;
 }
 
@@ -214,17 +214,17 @@ pair<double,double> Balanced_Network::getEM_data_inh2(){
   pair<double,double> toReturn;
   toReturn.first = (neuron_Vector[0]->externalRateFactor);
   double size = inhibitoryActivityTimeSeries.size();
-  for (int i=400;i< inhibitoryActivityTimeSeries.size();i++){
+  for (int i=0;i< inhibitoryActivityTimeSeries.size();i++){
     inhStateSum += inhibitoryActivityTimeSeries[i].second;
   }
   cout << inhStateSum << endl;
-  toReturn.second = inhStateSum/N_I/(inhibitoryActivityTimeSeries.size()-400);
+  toReturn.second = inhStateSum/N_I/(inhibitoryActivityTimeSeries.size());
   return toReturn;
 }
 
 double Balanced_Network::getEM_data_exc_sd(){
   vector<double> data;
-  for (int i=1600;i<excitatoryActivityTimeSeries.size();i++){
+  for (int i=0;i<excitatoryActivityTimeSeries.size();i++){
     data.push_back(excitatoryActivityTimeSeries[i].second/N_E);
   }
   return standardDeviation(data);
@@ -234,7 +234,7 @@ double Balanced_Network::getEM_data_exc_sd(){
 
 double Balanced_Network::getEM_data_inh_sd(){
   vector<double> data;
-  for (int i=400;i<inhibitoryActivityTimeSeries.size();i++){
+  for (int i=0;i<inhibitoryActivityTimeSeries.size();i++){
     data.push_back(inhibitoryActivityTimeSeries[i].second/N_I);
   }
   return standardDeviation(data);
@@ -309,7 +309,7 @@ double Balanced_Network::getM_exc_inf(){
   double count =0;
   int size = excitatoryActivityTimeSeries.size();
   //we take an average of the last 500 data to approximate m_inf
-  for (int i=size-10000;i<size;i++){
+  for (int i=size-40000;i<size;i++){
     sum += excitatoryActivityTimeSeries[i].second/N_E;
     count++;
   }
@@ -334,7 +334,7 @@ double Balanced_Network::getTheta_exc_inf(){
   double count =0;
   int size = meanExcThresholdTimeSeries.size();
   //we take an average of the last 500 data to approximate m_inf
-  for (int i=size-10000;i<size;i++){
+  for (int i=size-40000;i<size;i++){
     sum += meanExcThresholdTimeSeries[i].second/N_E;
     count++;
   }
@@ -357,6 +357,46 @@ vector<double> Balanced_Network::getTime_Vector(){
   return time_vector;
 }
 */
+
+double Balanced_Network::getTotalInputExcMean(){
+  return mean(totalInput_exc);
+}
+
+double Balanced_Network::getTotalInputInhMean(){
+  return mean(totalInput_inh);
+}
+
+double Balanced_Network::getTotalInputExcSD(){
+  return standardDeviation(totalInput_exc);
+}
+
+double Balanced_Network::getTotalInputInhSD(){
+  return standardDeviation(totalInput_inh);
+}
+
+double Balanced_Network::getTotalInputExcSDInf(){
+  double sum;
+  double count;
+  vector<double> tail;
+  vector<double> vector = totalInput_exc;
+  int size = vector.size();
+  for(int i=size-40000;i<size;i++){
+    tail.push_back(vector[i]);
+  }
+  return standardDeviation(tail);
+}
+
+double Balanced_Network::getTotalInputInhSDInf(){
+  double sum;
+  double count;
+  vector<double> tail;
+  vector<double> vector = totalInput_inh;
+  int size = vector.size();
+  for(int i=size-10000;i<size;i++){
+    tail.push_back(vector[i]);
+  }
+  return standardDeviation(tail);
+}
 
 STLPriorityQueue<double,Neuron*>* Balanced_Network::getPQ(){
   return minimum_time_queue;
@@ -757,6 +797,221 @@ void Balanced_Network::update(Neuron* neuron_to_record){
       record(data_total,data_exc,data_inh,neuron_to_record);
     }
 }
+
+
+
+
+
+void Balanced_Network::update2(){
+  if (neuron_Vector.size()==0){
+    throw runtime_error("There are currently no neurons in the network.");
+  }
+  //choose the minimum one to update(Max of the negatives)
+  Neuron* neuron_to_update = minimum_time_queue->removeMax();
+
+  //update the network time
+  time = neuron_to_update->time_to_be_updated;
+
+  //update the neuron time
+  neuron_to_update->update_time_to_be_updated();
+
+  //insert the new update time into the priority queue
+  //The queue always has the number of elements equal to
+  //the number of neurons.
+  minimum_time_queue->insert((-1*neuron_to_update->time_to_be_updated),neuron_to_update);
+
+
+  //for mean Threshold
+  if (neuron_to_update->population == "E"){
+    pair<double,double> dataToPush(time,
+      meanExcThresholdTimeSeries.back().second - neuron_to_update->threshold);
+      meanExcThresholdTimeSeries.push_back(dataToPush);
+  }
+  else {
+    pair<double,double> dataToPush(time,
+      meanInhThresholdTimeSeries.back().second - neuron_to_update->threshold);
+      meanInhThresholdTimeSeries.push_back(dataToPush);
+  }
+
+  //SFA stuff - decay
+  double timeElapsed = time - neuron_to_update->last_update_time;
+
+  neuron_to_update->threshold = neuron_to_update->original_threshold +
+  (neuron_to_update->threshold - neuron_to_update->original_threshold)*
+  exp(-neuron_to_update->decay_constant*timeElapsed);
+
+  neuron_to_update->last_update_time = time;
+
+
+  //reset the total input to the neuron being updated to zero.
+  neuron_to_update->totalInput = 0;
+  neuron_to_update->totalExcitatoryInput =0;
+  neuron_to_update->totalInhibitoryInput =0;
+
+
+  //vector<Edge<Neuron*,string,double> > incomingConnections = network->getIncomingEdges(neuron_to_update);
+    //the for-loop sums over all the connected neurons
+  for (int j=0;j<N_E+N_I;j++){
+    double strength = Jmatrix[neuron_to_update->vectorNumber][j];
+    double state = neuron_Vector[j]->state;
+    //neuron_to_update->totalInput += strength * state;
+    if (strength > 0){
+      neuron_to_update->totalExcitatoryInput += (strength*state);
+    }
+    else if (strength <0){
+      neuron_to_update->totalInhibitoryInput += (strength*state);
+    }
+  }
+
+    //below takes care of externalInput and threshold
+    neuron_to_update->totalExcitatoryInput += neuron_to_update->externalInput;
+    neuron_to_update->totalInput = neuron_to_update->totalExcitatoryInput +
+    neuron_to_update->totalInhibitoryInput;
+
+    //the neuron fires if the totalInput is above zero, rests otherwise.
+    neuron_to_update->previous_state = neuron_to_update->state;
+
+    neuron_to_update->state =
+    Heaviside(neuron_to_update->totalInput- neuron_to_update->threshold);
+
+    //SFA stuff - jump
+    neuron_to_update->threshold += neuron_to_update->state*
+    neuron_to_update->adaptation_jump;
+    neuron_to_update->thresholdVector.push_back(neuron_to_update->threshold);
+
+    //for mean Threshold
+    if (neuron_to_update->population == "E"){
+      meanExcThresholdTimeSeries.back().second += neuron_to_update->threshold;
+    }
+    else {
+      meanInhThresholdTimeSeries.back().second += neuron_to_update->threshold;
+    }
+    //cout << meanExcThresholdTimeSeries.back().second << endl;
+
+    //EM plot stuff(sixth plot)
+    //neuron_to_update->stateSum += neuron_to_update->state;
+
+    //EI ratio stuff(second plot)
+    if (neuron_to_update->totalInhibitoryInput!=0){
+      neuron_to_update->EI_Ratio += (neuron_to_update->totalExcitatoryInput/
+      neuron_to_update->totalInhibitoryInput);
+      neuron_to_update->update_count++;
+    }
+    /*
+    neuron_to_update->EI_Ratio_Exc += neuron_to_update->totalExcitatoryInput;
+    neuron_to_update->EI_Ratio_Inh += neuron_to_update->totalInhibitoryInput;
+    */
+
+/*
+    //update the network time
+    time = neuron_to_update->time_to_be_updated;
+    //timeElapsed = time - neuron_to_update->last_update_time;
+
+    //update the neuron time
+    neuron_to_update->update_time_to_be_updated();
+
+    //insert the new update time into the priority queue
+    //The queue always has the number of elements equal to
+    //the number of neurons.
+    minimum_time_queue->insert((-1*neuron_to_update->time_to_be_updated),neuron_to_update);
+*/
+
+    //ISI stuff
+    if (neuron_to_update->previous_state ==0 &&
+    neuron_to_update->state ==1){
+      if (neuron_to_update->last_spike_time ==0){
+        neuron_to_update->last_spike_time = time;
+        //record this as a time in which a spike happened
+        neuron_to_update->spike_times.push_back(time);
+      }
+      else {
+        neuron_to_update->current_spike_time = time;
+        double ISI_time = neuron_to_update->current_spike_time -
+        neuron_to_update->last_spike_time;
+        neuron_to_update->ISI_data.push_back(ISI_time);
+        neuron_to_update->last_spike_time = time;
+        //record this as a time in which a spike happened
+        neuron_to_update->spike_times.push_back(time);
+      }
+    }
+
+    //SFA stuff
+    //neuron_to_update->updateThresholdDiscrete(true, timeElapsed);
+    //neuron_to_update->last_update_time = time;
+
+
+
+
+    //studying the plateau region, not really necessary now.
+    //checkActiveNeurons(99,100);
+
+    //cout << neuron_Vector[94]->state << endl;
+
+
+    //Mean Activity stuff
+    //this says "if the updated neuron went from rest to active"
+    if (neuron_to_update->previous_state ==0 &&
+    neuron_to_update->state ==1){
+      if (neuron_to_update->population == "E"){
+        pair<double,double> data(time,
+          excitatoryActivityTimeSeries.back().second+1);
+        excitatoryActivityTimeSeries.push_back(data);
+        excUpdateCount++;
+      }
+      else if (neuron_to_update->population == "I"){
+        pair<double,double> data(time,
+          inhibitoryActivityTimeSeries.back().second+1);
+        inhibitoryActivityTimeSeries.push_back(data);
+        inhUpdateCount++;
+      }
+    }
+    //this says "else if the updated neuron went from active to rest"
+    else if (neuron_to_update->previous_state ==1 &&
+    neuron_to_update->state ==0){
+      if (neuron_to_update->population == "E"){
+        pair<double,double> data(time,
+          excitatoryActivityTimeSeries.back().second-1);
+        excitatoryActivityTimeSeries.push_back(data);
+        excUpdateCount++;
+      }
+      else if (neuron_to_update->population == "I"){
+        pair<double,double> data(time,
+          inhibitoryActivityTimeSeries.back().second-1);
+        inhibitoryActivityTimeSeries.push_back(data);
+        inhUpdateCount++;
+      }
+    }
+    else{
+      if (neuron_to_update->population == "E"){
+        pair<double,double> data(time,
+          excitatoryActivityTimeSeries.back().second);
+        excitatoryActivityTimeSeries.push_back(data);
+        excUpdateCount++;
+      }
+      else if (neuron_to_update->population == "I"){
+        pair<double,double> data(time,
+          inhibitoryActivityTimeSeries.back().second);
+        inhibitoryActivityTimeSeries.push_back(data);
+        inhUpdateCount++;
+      }
+    }
+
+    //Record total input
+    pair<double,double> data_total(time,neuron_to_update->totalInput);
+    pair<double,double> data_exc(time,neuron_to_update->totalExcitatoryInput);
+    pair<double,double> data_inh(time,neuron_to_update->totalInhibitoryInput);
+
+    if (neuron_to_update->population == "E"){
+      totalInput_exc.push_back(neuron_to_update->totalInput);
+      totalInput_exc_timeSeries.push_back(data_total);
+    }
+    else if (neuron_to_update->population == "I"){
+      totalInput_inh.push_back(neuron_to_update->totalInput);
+      totalInput_inh_timeSeries.push_back(data_total);
+    }
+    //record(data_total,data_exc,data_inh,neuron_to_update);
+}
+
 
 
 //the below two functions are pretty much obselete

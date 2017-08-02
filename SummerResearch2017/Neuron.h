@@ -5,6 +5,8 @@
 
 
 #include "stdlib.h"
+#include "Statistics.h"
+
 
 using namespace std;
 
@@ -22,6 +24,10 @@ public:
   void rest();
   void updateThresholdSmooth(double currentTime);
   void updateThresholdDiscrete(bool value, double timeElapsed);
+
+  double getMeanTotalInput();
+  double getMeanExcInput();
+  double getMeanInhInput();
 
   bool operator ==(const Neuron& n){
     if (number == n.number && population == n.population){
@@ -50,9 +56,13 @@ public:
   double delta;
   double tau;
 
-  vector<pair<double,double> > totalInput_timeSeries;
-  vector<pair<double,double> > excitatoryInput_timeSeries;
-  vector<pair<double,double> > inhibitoryInput_timeSeries;
+  vector<pair<double,double>> totalInput_timeSeries;
+  vector<pair<double,double>> excitatoryInput_timeSeries;
+  vector<pair<double,double>> inhibitoryInput_timeSeries;
+
+  double totalInput_Mean;
+  double excitatoryInput_Mean;
+  double inhibitoryInput_Mean;
 
   vector<double> ISI_data;
   vector<double> spike_times;

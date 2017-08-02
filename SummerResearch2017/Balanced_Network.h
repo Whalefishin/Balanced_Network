@@ -10,7 +10,6 @@
 //#include "GraphLab/adjacencyListGraph.h"
 #include "Neuron.h"
 #include "GraphLab/stl/stlPriorityQueue.h"
-#include "Statistics.h"
 
 using namespace std;
 
@@ -75,6 +74,13 @@ public:
   double getM_inh_inf();
   double getTheta_exc_inf();
   double getTheta_inh_inf();
+
+  double getTotalInputExcMean();
+  double getTotalInputInhMean();
+  double getTotalInputExcSD();
+  double getTotalInputInhSD();
+  double getTotalInputExcSDInf();
+  double getTotalInputInhSDInf();
 
 
   //gets the PQ for the update method.
@@ -146,6 +152,10 @@ public:
   //We can change the neuron_to_record to a vector of neurons
   void update(Neuron* neuron_to_record);
 
+  //The only difference between update2 and update is that
+  //update2 records total input data differently.
+  void update2();
+
   //The same update function, but only records the data
   //for the EM plot.
   //Outdated now.
@@ -168,6 +178,11 @@ public:
   //to be the pair.second
   vector<pair<double,vector<Neuron*>>> activeNeurons;
 
+  //Total input
+  vector<pair<double,double>> totalInput_exc_timeSeries;
+  vector<pair<double,double>> totalInput_inh_timeSeries;
+  vector<double> totalInput_exc;
+  vector<double> totalInput_inh;
 
 private:
   //helper methods
@@ -201,7 +216,6 @@ private:
   double time;
   //vector<double> time_vector;
   STLPriorityQueue<double,Neuron*>* minimum_time_queue;
-
 
 
   //EI ratio and ISI recording

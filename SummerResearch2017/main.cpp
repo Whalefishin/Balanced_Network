@@ -19,11 +19,11 @@ int main(){
 srand(6);
 
 //Various paramaters
-const double Num_Excitatory_Neurons = 4000;
-const double Num_Inhibitory_Neurons = 1000;
-const double Num_Excitatory_Neurons_Scale = 4000;
-const double Num_Inhibitory_Neurons_Scale = 1000;
-const double K = 100;
+const double Num_Excitatory_Neurons = 8000;
+const double Num_Inhibitory_Neurons = 2000;
+const double Num_Excitatory_Neurons_Scale = 4;
+const double Num_Inhibitory_Neurons_Scale = 1;
+const double K = 200;
 const double K_Scale = 100;
 
 const double m_0 = 0.2;
@@ -34,14 +34,14 @@ const double J_EI = -2;
 const double J_IE = 1;
 const double J_II = -1.8;
 
-const int update_steps = 100*5000;
-const int update_times_Scale = 1;
+const int update_steps = 200*5000;
+const int update_times_Scale = 100;
 
 const double Num_Scale1 = 1;
-const double Num_Scale2 = 10;
+const double Num_Scale2 = 1;
 
 const double externalRateFactor = 1;
-const double adaptation_jump = 0.07;
+const double adaptation_jump = 0;
 const double decay_constant = 0.025;
 
 
@@ -84,7 +84,11 @@ to_string(neuron_to_record->number) + neuron_to_record->population << endl;
 //if we want to update it a set amout of steps
 
 for (int i=0;i<update_steps;i++){
-  neural_network->update(neuron_to_record);
+  //this update collects total input for a single, randomly chosen neuron
+  //neural_network->update(neuron_to_record);
+
+  //this update collects total input for each population
+  neural_network->update2();
 }
 
 
@@ -107,7 +111,8 @@ for (int i=0;i<totTimeSeries.size();i++){
 }
 */
 
-
+vector<pair<double,double>> totalInputExc = neural_network->totalInput_exc_timeSeries;
+vector<pair<double,double>> totalInputInh = neural_network->totalInput_inh_timeSeries;
 
 
 //add the EI ratio data.
@@ -161,6 +166,14 @@ vector<double> m_inh_inf_vector;
 vector<double> theta_exc_inf_vector;
 vector<double> theta_inh_inf_vector;
 
+//total Inputs
+vector<double> totalInputExcMeanVector;
+vector<double> totalInputInhMeanVector;
+vector<double> totalInputExcSDVector;
+vector<double> totalInputInhSDVector;
+vector<double> totalInputExcSDInfVector;
+vector<double> totalInputInhSDInfVector;
+
 //Constructing a collection of networks
 vector<Balanced_Network*> Collection;
 
@@ -180,7 +193,7 @@ for (int i=1;i<=Num_Scale2;i++){
 for (int i=0;i<Num_Scale1*Num_Scale2;i++){
   for (int j=0;j<update_times_Scale;j++){
     Neuron* temp = Collection[i]->chooseRandomNeuron();
-    Collection[i]->update(temp);
+    Collection[i]->update2();
   }
   //population gain
   pair<double,double> dataPointExc = Collection[i]->getEM_data_exc2();
@@ -218,6 +231,14 @@ for (int i=0;i<Num_Scale1*Num_Scale2;i++){
   m_inh_inf_vector.push_back(Collection[i]->getM_inh_inf());
   theta_exc_inf_vector.push_back(Collection[i]->getTheta_exc_inf());
   theta_inh_inf_vector.push_back(Collection[i]->getTheta_inh_inf());
+
+  //total Inputs
+  totalInputExcMeanVector.push_back(Collection[i]->getTotalInputExcMean());
+  totalInputInhMeanVector.push_back(Collection[i]->getTotalInputInhMean());
+  totalInputExcSDVector.push_back(Collection[i]->getTotalInputExcSD());
+  totalInputInhSDVector.push_back(Collection[i]->getTotalInputInhSD());
+  totalInputExcSDInfVector.push_back(Collection[i]->getTotalInputExcSDInf());
+  totalInputInhSDInfVector.push_back(Collection[i]->getTotalInputInhSDInf());
 }
 
 
@@ -229,6 +250,11 @@ ofstream timeSeriesTxt1("Data/Time.txt");
 ofstream timeSeriesTxt2("Data/TotalInput.txt");
 ofstream timeSeriesTxt3("Data/ExcitatoryInput.txt");
 ofstream timeSeriesTxt4("Data/InhibitoryInput.txt");
+
+ofstream totalInputExcTxt("Data/TotalInputExcitatory.txt");
+ofstream totalInputInhTxt("Data/TotalInputInhibitory.txt");
+ofstream totalInputExcTimeTxt("Data/TotalInputExcitatoryTime.txt");
+ofstream totalInputInhTimeTxt("Data/TotalInputInhibitoryTime.txt");
 
 ofstream EIRatiosTxt("Data/EI_ratios.txt");
 
@@ -282,6 +308,14 @@ ofstream adaptationGainTxt16("Data/Adaptation_Inh_M_inf.txt");
 ofstream adaptationGainTxt17("Data/Adaptation_Exc_Theta_inf.txt");
 ofstream adaptationGainTxt18("Data/Adaptation_Inh_Theta_inf.txt");
 
+ofstream adaptationGainTxt19("Data/Adaptation_TotalInput_Exc_Mean.txt");
+ofstream adaptationGainTxt20("Data/Adaptation_TotalInput_Inh_Mean.txt");
+ofstream adaptationGainTxt21("Data/Adaptation_TotalInput_Exc_SD.txt");
+ofstream adaptationGainTxt22("Data/Adaptation_TotalInput_Inh_SD.txt");
+ofstream adaptationGainTxt23("Data/Adaptation_TotalInput_Exc_SD_Inf.txt");
+ofstream adaptationGainTxt24("Data/Adaptation_TotalInput_Inh_SD_Inf.txt");
+
+
 //Inputs
 //format: time, total input, excitatory input, inhibitory input
 for (int i=0;i<totTimeSeries.size();i++){
@@ -293,7 +327,16 @@ timeSeriesTxt3 << to_string(excTimeSeries[i].second)
 timeSeriesTxt4 << to_string(inhTimeSeries[i].second) << endl;
 }
 
+//Total Inputs network
+for (int i=0;i<totalInputExc.size();i++){
+  totalInputExcTimeTxt << totalInputExc[i].first << endl;
+  totalInputExcTxt << totalInputExc[i].second << endl;
+}
 
+for (int i=0;i<totalInputInh.size();i++){
+  totalInputInhTimeTxt << totalInputInh[i].first <<endl;
+  totalInputInhTxt << totalInputInh[i].second << endl;
+}
 
 //EI ratios
 for (int i=0;i<EI_ratios.size();i++){
@@ -306,12 +349,12 @@ for (int i=0;i<nVector.size();i++){
 }
 
 //Mean activities
-for (int i=1000;i<exc_mean.size();i++){
+for (int i=0;i<exc_mean.size();i++){
   excTimeTxt << exc_mean[i].first << endl;
   excMean_ActivityTxt << (exc_mean[i].second/Num_Excitatory_Neurons) << endl;
 }
 
-for (int i=1000;i<inh_mean.size();i++){
+for (int i=0;i<inh_mean.size();i++){
   inhTimeTxt << inh_mean[i].first << endl;
   inhMean_ActivityTxt << (inh_mean[i].second/Num_Inhibitory_Neurons) << endl;
 }
@@ -374,6 +417,12 @@ for (int i=0;i<meanEIratioVector.size();i++){
   adaptationGainTxt16 << m_inh_inf_vector[i]<< endl;
   adaptationGainTxt17 << theta_exc_inf_vector[i] << endl;
   adaptationGainTxt18 << theta_inh_inf_vector[i] << endl;
+  adaptationGainTxt19 << totalInputExcMeanVector[i] << endl;
+  adaptationGainTxt20 << totalInputInhMeanVector[i] << endl;
+  adaptationGainTxt21 << totalInputExcSDVector[i] << endl;
+  adaptationGainTxt22 << totalInputInhSDVector[i] << endl;
+  adaptationGainTxt23 << totalInputExcSDInfVector[i] << endl;
+  adaptationGainTxt24 << totalInputInhSDInfVector[i] << endl;
 }
 
 
@@ -409,6 +458,16 @@ parametersTxt << "K: " + to_string(K_Scale) << endl;
 parametersTxt << "Number of updates: " + to_string(update_times_Scale) << endl;
 parametersTxt << "m_0_Scale: " + to_string(m_0_Scale) << endl;
 
+
+/*
+cout << neural_network->getTotalInputExcSD() << endl;
+cout << neural_network->getTotalInputExcSDInf() << endl;
+cout << neural_network->getTotalInputInhSD() << endl;
+cout << neural_network->getTotalInputInhSDInf() << endl;
+
+cout << "m_I" + to_string(neural_network->getM_inh_inf()) << endl;
+cout << "m_E" + to_string(neural_network->getM_exc_inf()) << endl;
+*/
 
 //Testing out 95E
 /*
