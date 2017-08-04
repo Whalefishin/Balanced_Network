@@ -37,8 +37,8 @@ const double J_II = -1.8;
 const int update_steps = 200;
 const int update_times_Scale = 10000*300;
 
-const double Num_Scale1 = 30;
-const double Num_Scale2 = 30;
+const double Num_Scale1 = 20;
+const double Num_Scale2 = 20;
 
 const double externalRateFactor = 1;
 const double adaptation_jump = 0;

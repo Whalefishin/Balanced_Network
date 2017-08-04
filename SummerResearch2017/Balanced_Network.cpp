@@ -1002,11 +1002,11 @@ void Balanced_Network::update2(){
     pair<double,double> data_inh(time,neuron_to_update->totalInhibitoryInput);
 
     if (neuron_to_update->population == "E"){
-      totalInput_exc.push_back(neuron_to_update->totalInput);
+      totalInput_exc.push_back(neuron_to_update->totalInput-neuron_to_update->threshold);
       totalInput_exc_timeSeries.push_back(data_total);
     }
     else if (neuron_to_update->population == "I"){
-      totalInput_inh.push_back(neuron_to_update->totalInput);
+      totalInput_inh.push_back(neuron_to_update->totalInput-neuron_to_update->threshold);
       totalInput_inh_timeSeries.push_back(data_total);
     }
     //record(data_total,data_exc,data_inh,neuron_to_update);
