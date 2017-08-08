@@ -7,9 +7,7 @@
 
 #include "Balanced_Network.h"
 #include "GraphLab/stl/stlHashTable.h"
-//#include "Neuron.h"
 #include "stdlib.h"
-//#include "Statistics.h"
 
 
 using namespace std;
@@ -23,6 +21,7 @@ const double Num_Excitatory_Neurons = 8;
 const double Num_Inhibitory_Neurons = 2;
 const double Num_Excitatory_Neurons_Scale = 8000;
 const double Num_Inhibitory_Neurons_Scale = 2000;
+
 const double K = 200;
 const double K_Scale = 200;
 
@@ -34,21 +33,20 @@ const double J_EI = -2;
 const double J_IE = 1;
 const double J_II = -1.8;
 
-const int update_steps = 200;
+const int update_times = 200;
 const int update_times_Scale = 10000*300;
 
-const double Num_Scale1 = 20;
-const double Num_Scale2 = 20;
+const double Num_Scale1 = 30;
+const double Num_Scale2 = 30;
 
 const double externalRateFactor = 1;
 const double adaptation_jump = 0;
 const double decay_constant = 0.025;
 
+double Num_All_Neurons = Num_Excitatory_Neurons + Num_Inhibitory_Neurons;
 
 //If you wish to change the neuronal constants, you have to
 //go to the constructor in the Neuron.h file
-
-double Num_All_Neurons = Num_Excitatory_Neurons + Num_Inhibitory_Neurons;
 
 
 
@@ -57,21 +55,12 @@ double Num_All_Neurons = Num_Excitatory_Neurons + Num_Inhibitory_Neurons;
 
 Balanced_Network* neural_network =
 new Balanced_Network(Num_Excitatory_Neurons,Num_Inhibitory_Neurons, K,
-  J_EE, J_EI, J_IE, J_II,m_0,externalRateFactor,adaptation_jump,decay_constant);
-
-//neural_network->initializeJmatrix(J_EE, J_EI, J_IE, J_II);
-
-//neural_network->establishConnections();
-
+  J_EE, J_EI, J_IE, J_II,m_0,externalRateFactor,adaptation_jump,decay_constant,update_times);
 
 double** J = neural_network->getJmatrix();
 vector<Neuron*> nVector = neural_network->neuron_Vector;
 //choose a random Neuron to record
 Neuron* neuron_to_record = neural_network->chooseRandomNeuron();
-
-//manually choose 200I to record
-//Neuron* neuron_to_record = neural_network->neuron_Vector.back();
-//Neuron* neuron_to_record = nVector[94];
 
 cout<< "The neuron we choose to record is:" +
 to_string(neuron_to_record->number) + neuron_to_record->population << endl;
@@ -95,31 +84,17 @@ for (int i=0;i<update_steps;i++){
 //if we want to update it till a certain time spot
 double stop_time = 10;
 
-
-//Print out the data in the terminal
-
-
 vector<pair<double,double> > totTimeSeries = neuron_to_record->totalInput_timeSeries;
 vector<pair<double,double> > excTimeSeries = neuron_to_record->excitatoryInput_timeSeries;
 vector<pair<double,double> > inhTimeSeries = neuron_to_record->inhibitoryInput_timeSeries;
-/*
-for (int i=0;i<totTimeSeries.size();i++){
-  cout << "Time: " + to_string(totTimeSeries[i].first) +
-  " Total Input: " + to_string(totTimeSeries[i].second) +
-  " Total ExcInput: " + to_string(excTimeSeries[i].second) +
-  " Total InhInput: " + to_string(inhTimeSeries[i].second) << endl;
-}
-*/
 
 vector<pair<double,double>> totalInputExc = neural_network->totalInput_exc_timeSeries;
 vector<pair<double,double>> totalInputInh = neural_network->totalInput_inh_timeSeries;
-
 
 //add the EI ratio data.
 neural_network->addEI_Ratios();
 
 vector<double> EI_ratios = neural_network->getEI_Ratios();
-
 
 //print mean Activity
 vector<pair<double,double>> exc_mean = neural_network->getExcMeanAtv();
@@ -129,8 +104,6 @@ vector<pair<double,double>> inh_mean = neural_network->getInhMeanAtv();
 
 vector<pair<double,double>> exc_mean_threshold = neural_network->getMeanExcThresholdTimeSeries();
 vector<pair<double,double>> inh_mean_threshold = neural_network->getMeanInhThresholdTimeSeries();
-
-
 
 //Adaptation Scaling - lambda vs. EI ratios
 vector<double> lambdaVector;
@@ -165,6 +138,8 @@ vector<double> m_exc_inf_vector;
 vector<double> m_inh_inf_vector;
 vector<double> theta_exc_inf_vector;
 vector<double> theta_inh_inf_vector;
+vector<double> sdExcInfThresholdVector;
+vector<double> sdInhInfThresholdVector;
 
 //total Inputs
 vector<double> totalInputExcMeanVector;
@@ -174,28 +149,7 @@ vector<double> totalInputInhSDVector;
 vector<double> totalInputExcSDInfVector;
 vector<double> totalInputInhSDInfVector;
 
-//Constructing a collection of networks
-//vector<Balanced_Network*> Collection;
 
-/*
-for (int j=1;j<=Num_Scale1;j++){
-for (int i=1;i<=Num_Scale2;i++){
-  srand(6);
-  // double r=((double)rand()/(double)RAND_MAX);
-  Balanced_Network* toInsert = new
-  Balanced_Network(Num_Excitatory_Neurons_Scale,Num_Inhibitory_Neurons_Scale
-    , K_Scale,J_EE, J_EI, J_IE, J_II,m_0_Scale,
-    externalRateFactor, j*0.1,i*0.02);
-  Collection.push_back(toInsert);
-}
-}
-*/
-/*
-Balanced_Network* network_scale= new
-Balanced_Network(Num_Excitatory_Neurons_Scale,Num_Inhibitory_Neurons_Scale
-  , K_Scale,J_EE, J_EI, J_IE, J_II,m_0_Scale,
-  externalRateFactor, 0.1,0.02);
-*/
 
 Balanced_Network* network_scale;
 
@@ -206,7 +160,7 @@ for (int i=1;i<=Num_Scale2;i++){
   network_scale = new
   Balanced_Network(Num_Excitatory_Neurons_Scale,Num_Inhibitory_Neurons_Scale
     , K_Scale,J_EE, J_EI, J_IE, J_II,m_0_Scale,
-    externalRateFactor, j*0.1,i*0.02);
+    externalRateFactor, j*0.1,i*0.02,update_times_Scale);
   for (int k=0;k<update_times_Scale;k++){
     Neuron* temp = network_scale->chooseRandomNeuron();
     network_scale->update2();
@@ -234,7 +188,7 @@ for (int i=1;i<=Num_Scale2;i++){
   standardDeviationInhEIratioVector.push_back(standardDeviation(
     network_scale->getInhEI_Ratios()));
 
-  //Adaptation Scaling - lambda & Phi vs. Mean Threshold
+  // Mean Threshold
   meanExcThresholdVector.push_back(network_scale->getMeanExcThreshold());
   meanInhThresholdVector.push_back(network_scale->getMeanInhThreshold());
   meanThresholdVector.push_back(network_scale->getMeanThreshold());
@@ -248,6 +202,8 @@ for (int i=1;i<=Num_Scale2;i++){
   m_inh_inf_vector.push_back(network_scale->getM_inh_inf());
   theta_exc_inf_vector.push_back(network_scale->getTheta_exc_inf());
   theta_inh_inf_vector.push_back(network_scale->getTheta_inh_inf());
+  sdExcInfThresholdVector.push_back(network_scale->getTheta_exc_inf_SD());
+  sdInhInfThresholdVector.push_back(network_scale->getTheta_inh_inf_SD());
 
   //total Inputs
   totalInputExcMeanVector.push_back(network_scale->getTotalInputExcMean());
@@ -262,8 +218,6 @@ for (int i=1;i<=Num_Scale2;i++){
 }
 }
 
-
-cout << "phiVector size is: " + to_string(phiVector.size()) << endl;
 
 //Outputting.
 
@@ -335,7 +289,8 @@ ofstream adaptationGainTxt21("Data/Adaptation_TotalInput_Exc_SD.txt");
 ofstream adaptationGainTxt22("Data/Adaptation_TotalInput_Inh_SD.txt");
 ofstream adaptationGainTxt23("Data/Adaptation_TotalInput_Exc_SD_Inf.txt");
 ofstream adaptationGainTxt24("Data/Adaptation_TotalInput_Inh_SD_Inf.txt");
-
+ofstream adaptationGainTxt25("Data/Adaptation_Exc_ThresholdSD_inf.txt");
+ofstream adaptationGainTxt26("Data/Adaptation_Inh_ThresholdSD_inf.txt");
 
 //Inputs
 //format: time, total input, excitatory input, inhibitory input
@@ -444,6 +399,8 @@ for (int i=0;i<meanEIratioVector.size();i++){
   adaptationGainTxt22 << totalInputInhSDVector[i] << endl;
   adaptationGainTxt23 << totalInputExcSDInfVector[i] << endl;
   adaptationGainTxt24 << totalInputInhSDInfVector[i] << endl;
+  adaptationGainTxt25 << sdExcInfThresholdVector[i] << endl;
+  adaptationGainTxt26 << sdInhInfThresholdVector[i] << endl;
 }
 
 
@@ -479,243 +436,7 @@ parametersTxt << "K: " + to_string(K_Scale) << endl;
 parametersTxt << "Number of updates: " + to_string(update_times_Scale) << endl;
 parametersTxt << "m_0_Scale: " + to_string(m_0_Scale) << endl;
 
-
-/*
-cout << neural_network->getTotalInputExcSD() << endl;
-cout << neural_network->getTotalInputExcSDInf() << endl;
-cout << neural_network->getTotalInputInhSD() << endl;
-cout << neural_network->getTotalInputInhSDInf() << endl;
-
-cout << "m_I" + to_string(neural_network->getM_inh_inf()) << endl;
-cout << "m_E" + to_string(neural_network->getM_exc_inf()) << endl;
-*/
-
-//Testing out 95E
-/*
-vector<Edge<Neuron*,string,double>> incomingConnections =
-neural_network->getIncomingConnections(nVector[911]);
-
-cout << "Size is: " + to_string(incomingConnections.size()) << endl;
-
-int inhSum=0;
-int excSum=0;
-
-for (int i=0;i<incomingConnections.size();i++){
-  Neuron* incoming_neuron = incomingConnections[i].source;
-  if (incoming_neuron->population == "I" ){
-    inhSum++;
-  }
-  if (incoming_neuron->population == "E"){
-    excSum++;
-  }
-  cout << to_string(incoming_neuron->number) +
-  incoming_neuron->population << endl;
-}
-
-cout << "Exc count: " + to_string(excSum) << endl;
-cout << "Inh count: " + to_string(inhSum) << endl;
-
-*/
-
-
-//see if neurons are connected
-/*
-if (neural_network->isConnected(nVector[94],nVector[760])){
-  cout << "95E -> 761E" << endl;
-}
-
-if (neural_network->isConnected(nVector[760],nVector[94])){
-  cout << "95E <- 761E" << endl;
-}
-
-if (neural_network->isConnected(nVector[760],nVector[912])){
-  cout << "113I <- 761E" << endl;
-}
-
-if (neural_network->isConnected(nVector[912],nVector[760])){
-  cout << "113I -> 761E" << endl;
-}
-
-if (neural_network->isConnected(nVector[94],nVector[912])){
-  cout << "113I <- 95E" << endl;
-}
-
-if (neural_network->isConnected(nVector[912],nVector[94])){
-  cout << "113I -> 95E" << endl;
-}
-*/
-
-/*
-cout << "One of the entries should be: lambda = "
-+ to_string(neural_network->lambda) + "meanEIRatio = " +
-to_string(mean(neural_network->getEI_Ratios())) << endl;
-*/
-
-
-
-//Check if the connections are established appropriately
-/*
-Neuron* testNeuron = nVector.back();
-
-vector<Edge<Neuron*,string,double>> testEdges =
- neural_network->getIncomingConnections(testNeuron);
-
- cout << "The test neuron is connected to " +
-  to_string(testEdges.size()) + "neurons" << endl;
-
-for(int i=0;i<testEdges.size();i++){
-  cout << testEdges[i].weight << endl;
-}
-*/
-
-//check if the neurons across different networks have the same
-//parameters
-/*
-vector<Neuron*> temp = Collection[0]->neuron_Vector;
-
-for (int i=1;i<10;i++){
-  vector<Neuron*> temp2 = network_scale->neuron_Vector;
-  if (temp.size()!=temp2.size()){
-    throw runtime_error("Size not the same");
-  }
-  for (int j=0;j<temp.size();j++){
-    if (temp[j]->number != temp2[j]->number){
-      throw runtime_error("name is not equal");
-    }
-    else if (temp[j]->delta != temp2[j]->delta){
-      throw runtime_error("delta is not equal");
-    }
-    else if (temp[j]->update_count !=temp2[j]->update_count){
-      throw runtime_error("update count not equal");
-    }
-    else {
-      cout << "Everything seems fine." << endl;
-    }
-  }
-}
-*/
-
-//some ISI testing stuff
-/*
-for (int j=0;j<nVector.size();j++){
-for (int i=0;i<nVector[j]->ISI_data.size();i++){
-  cout << "ISI_data for Neuron " + to_string(j+1) + " is: " +
-  to_string(nVector[j]->ISI_data[i]) + " ";
-}
-cout << " " << endl;
-}
-
-cout << "Count is: " + to_string(neural_network->count) << endl;
-*/
-
-//get all the entires in the Jmatrix
-/*
-int count = 0;
-for (int i=0;i<Num_All_Neurons;i++){
-  for (int j=0;j<Num_All_Neurons;j++){
-    if (i==Num_All_Neurons-1 && J[i][j]==1){
-      count++;
-    }
-  }
-}
-
-cout << count << endl;
-*/
-
-//manually check the update times for neurons
-/*
-for (int i=0;i<nVector.size();i++){
-  cout << "The delta for neuron " + to_string(nVector[i]->number)
-  + nVector[i]->population + "is:"
-  + to_string(nVector[i]->delta) << endl;
-}
-
-cout << "The current time is:" + to_string(neural_network->getTime()) << endl;
-
-vector<double> time_vector = neural_network->getTime_Vector();
-cout << "Time vector size is:" + to_string(time_vector.size()) << endl;
-
-for (int i=0;i<time_vector.size();i++){
-  cout << time_vector[i] << endl;
-}
-*/
-
-//outputting to a textfile
-/*
-ofstream A("A.txt");
-//write vector entries
-for(int i=0;i<Num_All_Neurons;i++)
-	{
-		for(int j =0; j< Num_All_Neurons;j++)
-		{
-			A << J[i][j];
-			A << " ";
-		}
-		A << endl;
-	}
-*/
-
-//test mean and standard deviation and CV
-/*
-vector<double> data;
-data.push_back(10);
-data.push_back(5.6);
-data.push_back(51);
-data.push_back(7.8);
-data.push_back(34.5);
-data.push_back(17.2);
-
-cout<< "Mean is: " + to_string(mean(data)) << endl;
-cout<< "Standard Deviation is: " + to_string(standardDeviation(data)) << endl;
-cout << "CV is: " + to_string(CoefficientVariation(data)) << endl;
-*/
-
-//check number of excitatory and inhibitory connections
-/*
-vector<Edge<Neuron*,string,double> > incomingConnections =
-neural_network->getIncomingConnections(neuron_to_record);
-
-int excCount =0;
-int inhCount = 0;
-
-for (int i=0;i<incomingConnections.size();i++){
-  if (incomingConnections[i].weight > 0){
-    excCount++;
-  }
-  else if (incomingConnections[i].weight < 0){
-    inhCount++;
-  }
-}
-
-cout << "Number of excitatory connection is: " +
- to_string(excCount) <<endl;
-cout << "Number of inhibitory connection is: " +
- to_string(inhCount) <<endl;
-*/
-
-//print E_I ratios
-/*
-for (int i=0;i<EI_ratios.size();i++){
-  cout << "The " + to_string(i+1) + "th EI_ratio is: " +
-  to_string(EI_ratios[i]) << endl;
-}
-*/
-
-//print ISI
-/*
-for (int i=0;i<nVector.size();i++){
-  cout << "The " + to_string(i+1) + "th CV is: " +
-  to_string(CoefficientVariation(nVector[i]->ISI_data)) << endl;
-}
-*/
-
 delete neural_network;
-
-/*
-for (int i=0;i<Collection.size();i++){
-  delete network_scale;
-}
-*/
 
   return 0;
 }

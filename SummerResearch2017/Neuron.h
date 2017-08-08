@@ -49,6 +49,9 @@ public:
   double m_0;
   double externalRateFactor;
 
+  double update_count_neuronal;
+  double inf_size;
+
   double state;
   double previous_state;
 
@@ -60,9 +63,10 @@ public:
   vector<pair<double,double>> excitatoryInput_timeSeries;
   vector<pair<double,double>> inhibitoryInput_timeSeries;
 
-  double totalInput_Mean;
-  double excitatoryInput_Mean;
-  double inhibitoryInput_Mean;
+  double totalInput_Sum;
+  double totalInput_Sum_inf;
+  //double excitatoryInput_Sum;
+  //double inhibitoryInput_Sum;
 
   vector<double> ISI_data;
   vector<double> spike_times;
@@ -70,8 +74,12 @@ public:
   //EI Ratios
   double EI_Ratio;
   double update_count;
-  double EI_Ratio_Exc;
-  double EI_Ratio_Inh;
+
+  //E Inputs and I Inputs
+  double E_Input;
+  double I_Input;
+  double E_Input_inf;
+  double I_Input_inf;
 
   //ISI variables
   double last_spike_time;
@@ -85,10 +93,13 @@ public:
   double decay_constant;
   double adaptation_jump;
   double original_threshold;
-  //double decay_time_constant;
 
   double threshold_at_last_spike;
   double last_update_time;
 
   vector<double> thresholdVector;
+
+  //Threshold SD
+  double thresholdSum;
+  double thresholdSum_inf;
 };

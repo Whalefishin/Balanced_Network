@@ -10,6 +10,7 @@
 //#include "GraphLab/adjacencyListGraph.h"
 #include "Neuron.h"
 #include "GraphLab/stl/stlPriorityQueue.h"
+#include "Statistics.h"
 
 using namespace std;
 
@@ -57,8 +58,11 @@ public:
   pair<double,double> getEM_data_exc2();
   pair<double,double> getEM_data_inh2();
 
+
   double getEM_data_exc_sd();
   double getEM_data_inh_sd();
+  double getM_exc_inf();
+  double getM_inh_inf();
 
   double getMeanInhThreshold();
   double getMeanExcThreshold();
@@ -66,14 +70,15 @@ public:
   double getExcThresholdSD();
   double getInhThresholdSD();
   double getThresholdSD();
+  double getTheta_exc_inf_SD();
+  double getTheta_inh_inf_SD();
+  double getTheta_exc_inf();
+  double getTheta_inh_inf();
+
 
   vector<pair<double,double>> getMeanExcThresholdTimeSeries();
   vector<pair<double,double>> getMeanInhThresholdTimeSeries();
 
-  double getM_exc_inf();
-  double getM_inh_inf();
-  double getTheta_exc_inf();
-  double getTheta_inh_inf();
 
   double getTotalInputExcMean();
   double getTotalInputInhMean();
@@ -82,6 +87,24 @@ public:
   double getTotalInputExcSDInf();
   double getTotalInputInhSDInf();
 
+
+  double getEInputExcMean();
+  double getEInputInhMean();
+  double getEInputExcMeanInf();
+  double getEInputExcMeanInf();
+  double getEInputExcSD();
+  double getEInputInhSD();
+  double getEInputExcSDInf();
+  double getEInputInhSDInf();
+
+  double getIInputExcMean();
+  double getIInputInhMean();
+  double getIInputExcMeanInf();
+  double getIInputExcMeanInf();
+  double getIInputExcSD();
+  double getIInputInhSD();
+  double getIInputExcSDInf();
+  double getIInputInhSDInf();
 
   //gets the PQ for the update method.
   //For debugging purpose mostly, can saftely ignore.
@@ -145,15 +168,12 @@ public:
   double Heaviside(double value);
 
 
-  //update the
   void checkActiveNeurons(double startTime, double endTime);
 
   //Update the network once
   //We can change the neuron_to_record to a vector of neurons
   void update(Neuron* neuron_to_record);
 
-  //The only difference between update2 and update is that
-  //update2 records total input data differently.
   void update2();
 
   //The same update function, but only records the data
@@ -164,7 +184,8 @@ public:
 
   void addEI_Ratios();
 
-  int count =0;
+  double update_times;
+  double update_count;
 
   vector<Neuron*> neuron_Vector;
 
@@ -177,12 +198,11 @@ public:
   //at time pair.first, we have the active neurons
   //to be the pair.second
   vector<pair<double,vector<Neuron*>>> activeNeurons;
-
-  //Total input
-  vector<pair<double,double>> totalInput_exc_timeSeries;
-  vector<pair<double,double>> totalInput_inh_timeSeries;
   vector<double> totalInput_exc;
   vector<double> totalInput_inh;
+  vector<pair<double,double>> totalInput_exc_timeSeries;
+  vector<pair<double,double>> totalInput_inh_timeSeries;
+
 
 private:
   //helper methods
@@ -216,6 +236,7 @@ private:
   double time;
   //vector<double> time_vector;
   STLPriorityQueue<double,Neuron*>* minimum_time_queue;
+
 
 
   //EI ratio and ISI recording

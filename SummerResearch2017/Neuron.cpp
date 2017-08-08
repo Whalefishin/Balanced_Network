@@ -17,6 +17,7 @@ Neuron::Neuron(int number, string population, double K, double m_0,
   this->number = number;
   this->population = population;
   this->externalRateFactor = externalRateFactor;
+  inf_size = 10000;
 
   this->m_0 = m_0;
   last_spike_time =0;
@@ -37,6 +38,7 @@ Neuron::Neuron(int number, string population, double K, double m_0,
     threshold = 1;
     original_threshold = threshold;
     externalInput = externalRateFactor*1*m_0*sqrt(K);
+    //externalInput = externalRateFactor*0.8*m_0*sqrt(K);
     tau = 1;
     vectorNumber = number-1;
     //decay_constant = lambda*tau*2;
@@ -45,6 +47,7 @@ Neuron::Neuron(int number, string population, double K, double m_0,
   else if (population == "I"){
     threshold = 0.7;
     original_threshold = threshold;
+    //externalInput = externalRateFactor*1*m_0*sqrt(K);
     externalInput = externalRateFactor*0.8*m_0*sqrt(K);
     tau = 0.9;
     vectorNumber = number + N_E-1;
@@ -56,7 +59,7 @@ Neuron::Neuron(int number, string population, double K, double m_0,
 
 
   //get adaptation constants as parameters
-  decay_constant = lambda*tau;
+  decay_constant = lambda;
   adaptation_jump = phi*threshold;
 
 
@@ -68,8 +71,8 @@ Neuron::Neuron(int number, string population, double K, double m_0,
     time_to_be_updated = (0+delta)*tau;
     EI_Ratio = 0;
     update_count =0;
-    EI_Ratio_Exc =0;
-    EI_Ratio_Inh =0;
+    E_Input =0;
+    I_Input =0;
 }
 
 void Neuron::addInputData(pair<double,double> totalInput,
