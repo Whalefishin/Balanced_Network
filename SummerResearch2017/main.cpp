@@ -33,11 +33,11 @@ const double J_EI = -2;
 const double J_IE = 1;
 const double J_II = -1.8;
 
-const int update_times = 200;
+const int update_times = 20;
 const int update_times_Scale = 10000*300;
 
-const double Num_Scale1 = 30;
-const double Num_Scale2 = 30;
+const double Num_Scale1 = 1;
+const double Num_Scale2 = 1;
 
 const double externalRateFactor = 1;
 const double adaptation_jump = 0;
@@ -72,12 +72,12 @@ to_string(neuron_to_record->number) + neuron_to_record->population << endl;
 
 //if we want to update it a set amout of steps
 
-for (int i=0;i<update_steps;i++){
+for (int i=0;i<update_times;i++){
   //this update collects total input for a single, randomly chosen neuron
   //neural_network->update(neuron_to_record);
 
   //this update collects total input for each population
-  neural_network->update2();
+  neural_network->update(neuron_to_record);
 }
 
 
@@ -105,41 +105,52 @@ vector<pair<double,double>> inh_mean = neural_network->getInhMeanAtv();
 vector<pair<double,double>> exc_mean_threshold = neural_network->getMeanExcThresholdTimeSeries();
 vector<pair<double,double>> inh_mean_threshold = neural_network->getMeanInhThresholdTimeSeries();
 
-//Adaptation Scaling - lambda vs. EI ratios
-vector<double> lambdaVector;
 
+
+//Parameter Scaling plots
+
+
+//Phi & Lambda -> x & y
+vector<double> lambdaVector;
+vector<double> phiVector;
+
+//EI Ratio
 vector<double> meanEIratioVector;
 vector<double> meanInhEIratioVector;
 vector<double> meanExcEIratioVector;
-
 vector<double> standardDeviationEIratioVector;
 vector<double> standardDeviationInhEIratioVector;
 vector<double> standardDeviationExcEIratioVector;
+vector<double> meanEIratioInfVector;
+vector<double> meanInhEIratioInfVector;
+vector<double> meanExcEIratioInfVector;
+vector<double> standardDeviationEIratioInfVector;
+vector<double> standardDeviationExcEIratioInfVector;
+vector<double> standardDeviationInhEIratioInfVector;
 
-//Adaptation Scaling - Phi vs. EI ratios
-vector<double> phiVector;
-
-//Adaptation Scaling - lambda & Phi vs. Mean threshold
+//Threshold
 vector<double> meanExcThresholdVector;
 vector<double> meanInhThresholdVector;
 vector<double> meanThresholdVector;
 vector<double> sdExcThresholdVector;
 vector<double> sdInhThresholdVector;
 vector<double> sdThresholdVector;
-
-//Population Gain
-vector<pair<double,double>> EM_dataVector_excitatory;
-vector<pair<double,double>> EM_dataVector_inhibitory;
-vector<double> gain_Exc_SD;
-vector<double> gain_Inh_SD;
-
-//limit data
-vector<double> m_exc_inf_vector;
-vector<double> m_inh_inf_vector;
 vector<double> theta_exc_inf_vector;
 vector<double> theta_inh_inf_vector;
 vector<double> sdExcInfThresholdVector;
 vector<double> sdInhInfThresholdVector;
+vector<double> theta_inf_vector;
+vector<double> sdInfThresholdVector;
+
+//Mean Activities
+vector<pair<double,double>> EM_dataVector_excitatory;
+vector<pair<double,double>> EM_dataVector_inhibitory;
+vector<double> gain_Exc_SD;
+vector<double> gain_Inh_SD;
+vector<double> m_exc_inf_vector;
+vector<double> m_inh_inf_vector;
+vector<double> m_exc_sd_inf_vector;
+vector<double> m_inh_sd_inf_vector;
 
 //total Inputs
 vector<double> totalInputExcMeanVector;
@@ -149,11 +160,40 @@ vector<double> totalInputInhSDVector;
 vector<double> totalInputExcSDInfVector;
 vector<double> totalInputInhSDInfVector;
 
+//E Inputs
+vector<double> EInputExcMeanVector;
+vector<double> EInputInhMeanVector;
+vector<double> EInputMeanVector;
+vector<double> EInputExcMeanInfVector;
+vector<double> EInputInhMeanInfVector;
+vector<double> EInputMeanInfVector;
+vector<double> EInputExcSDVector;
+vector<double> EInputInhSDVector;
+vector<double> EInputSDVector;
+vector<double> EInputExcSDInfVector;
+vector<double> EInputInhSDInfVector;
+vector<double> EInputSDInfVector;
+
+//I Inputs
+vector<double> IInputExcMeanVector;
+vector<double> IInputInhMeanVector;
+vector<double> IInputMeanVector;
+vector<double> IInputExcMeanInfVector;
+vector<double> IInputInhMeanInfVector;
+vector<double> IInputMeanInfVector;
+vector<double> IInputExcSDVector;
+vector<double> IInputInhSDVector;
+vector<double> IInputSDVector;
+vector<double> IInputExcSDInfVector;
+vector<double> IInputInhSDInfVector;
+vector<double> IInputSDInfVector;
 
 
+
+
+//Simulation
 Balanced_Network* network_scale;
 
-//Updating the collection of networks
 for (int j=1;j<=Num_Scale1;j++){
 for (int i=1;i<=Num_Scale2;i++){
   srand(6);
@@ -166,18 +206,25 @@ for (int i=1;i<=Num_Scale2;i++){
     network_scale->update2();
     //cout << 1;
   }
-  //population gain
+
+  //Phi & Lambda
+  phiVector.push_back(network_scale->phi);
+  lambdaVector.push_back(network_scale->lambda);
+
+  //Mean Activity
   pair<double,double> dataPointExc = network_scale->getEM_data_exc2();
   pair<double,double> dataPointInh = network_scale->getEM_data_inh2();
   EM_dataVector_excitatory.push_back(dataPointExc);
   EM_dataVector_inhibitory.push_back(dataPointInh);
   gain_Exc_SD.push_back(network_scale->getEM_data_exc_sd());
   gain_Inh_SD.push_back(network_scale->getEM_data_inh_sd());
+  m_exc_sd_inf_vector.push_back(network_scale->getM_exc_sd_inf());
+  m_inh_sd_inf_vector.push_back(network_scale->getM_inh_sd_inf());
+  m_exc_inf_vector.push_back(network_scale->getM_exc_inf());
+  m_inh_inf_vector.push_back(network_scale->getM_inh_inf());
 
-  //Adaptation Scaling - lambda & Phi vs. EI ratios
+  //EI ratios
   network_scale->addEI_Ratios();
-  phiVector.push_back(network_scale->phi);
-  lambdaVector.push_back(network_scale->lambda);
   meanEIratioVector.push_back(mean(network_scale->getEI_Ratios()));
   meanExcEIratioVector.push_back(mean(network_scale->getExcEI_Ratios()));
   meanInhEIratioVector.push_back(mean(network_scale->getInhEI_Ratios()));
@@ -187,31 +234,65 @@ for (int i=1;i<=Num_Scale2;i++){
     standardDeviation(network_scale->getExcEI_Ratios()));
   standardDeviationInhEIratioVector.push_back(standardDeviation(
     network_scale->getInhEI_Ratios()));
+  meanEIratioInfVector.push_back(mean(network_scale->getEI_Ratios_inf()));
+  meanExcEIratioInfVector.push_back(mean(network_scale->getExcEI_Ratios_inf()));
+  meanInhEIratioInfVector.push_back(mean(network_scale->getInhEI_Ratios_inf()));
+  standardDeviationEIratioInfVector.push_back(
+      standardDeviation(network_scale->getEI_Ratios_inf()));
+  standardDeviationExcEIratioInfVector.push_back(
+      standardDeviation(network_scale->getExcEI_Ratios_inf()));
+  standardDeviationInhEIratioInfVector.push_back(standardDeviation(
+      network_scale->getInhEI_Ratios_inf()));
 
-  // Mean Threshold
+  //Threshold
   meanExcThresholdVector.push_back(network_scale->getMeanExcThreshold());
   meanInhThresholdVector.push_back(network_scale->getMeanInhThreshold());
   meanThresholdVector.push_back(network_scale->getMeanThreshold());
-  //SD part
   sdExcThresholdVector.push_back(network_scale->getExcThresholdSD());
   sdInhThresholdVector.push_back(network_scale->getInhThresholdSD());
   sdThresholdVector.push_back(network_scale->getThresholdSD());
-
-  //limit data
-  m_exc_inf_vector.push_back(network_scale->getM_exc_inf());
-  m_inh_inf_vector.push_back(network_scale->getM_inh_inf());
   theta_exc_inf_vector.push_back(network_scale->getTheta_exc_inf());
   theta_inh_inf_vector.push_back(network_scale->getTheta_inh_inf());
+  theta_inf_vector.push_back(network_scale->getTheta_inf());
   sdExcInfThresholdVector.push_back(network_scale->getTheta_exc_inf_SD());
   sdInhInfThresholdVector.push_back(network_scale->getTheta_inh_inf_SD());
+  sdInfThresholdVector.push_back(network_scale->getTheta_inf_SD());
 
-  //total Inputs
+  //Total Inputs
   totalInputExcMeanVector.push_back(network_scale->getTotalInputExcMean());
   totalInputInhMeanVector.push_back(network_scale->getTotalInputInhMean());
   totalInputExcSDVector.push_back(network_scale->getTotalInputExcSD());
   totalInputInhSDVector.push_back(network_scale->getTotalInputInhSD());
   totalInputExcSDInfVector.push_back(network_scale->getTotalInputExcSDInf());
   totalInputInhSDInfVector.push_back(network_scale->getTotalInputInhSDInf());
+
+  //E Inputs
+  EInputExcMeanVector.push_back(network_scale->getEInputExcMean());
+  EInputInhMeanVector.push_back(network_scale->getEInputInhMean());
+  EInputMeanVector.push_back(network_scale->getEInputMean());
+  EInputExcMeanInfVector.push_back(network_scale->getEInputExcMeanInf());
+  EInputInhMeanInfVector.push_back(network_scale->getEInputInhMeanInf());
+  EInputMeanInfVector.push_back(network_scale->getEInputMeanInf());
+  EInputExcSDVector.push_back(network_scale->getEInputExcSD());
+  EInputInhSDVector.push_back(network_scale->getEInputInhSD());
+  EInputSDVector.push_back(network_scale->getEInputSD());
+  EInputExcSDInfVector.push_back(network_scale->getEInputExcSDInf());
+  EInputInhSDInfVector.push_back(network_scale->getEInputInhSDInf());
+  EInputSDInfVector.push_back(network_scale->getEInputSDInf());
+
+  //I Inputs
+  IInputExcMeanVector.push_back(network_scale->getIInputExcMean());
+  IInputInhMeanVector.push_back(network_scale->getIInputInhMean());
+  IInputMeanVector.push_back(network_scale->getIInputMean());
+  IInputExcMeanInfVector.push_back(network_scale->getIInputExcMeanInf());
+  IInputInhMeanInfVector.push_back(network_scale->getIInputInhMeanInf());
+  IInputMeanInfVector.push_back(network_scale->getIInputMeanInf());
+  IInputExcSDVector.push_back(network_scale->getIInputExcSD());
+  IInputInhSDVector.push_back(network_scale->getIInputInhSD());
+  IInputSDVector.push_back(network_scale->getIInputSD());
+  IInputExcSDInfVector.push_back(network_scale->getIInputExcSDInf());
+  IInputInhSDInfVector.push_back(network_scale->getIInputInhSDInf());
+  IInputSDInfVector.push_back(network_scale->getIInputSDInf());
 
   //release memory
   delete network_scale;
@@ -257,40 +338,80 @@ ofstream excThresTimeTxt("Data/Exc_Thres_Time.txt");
 ofstream inhMeanThresholdTxt("Data/Inh_Mean_Threshold.txt");
 ofstream inhThresTimeTxt("Data/Inh_Thres_Time.txt");
 
-ofstream adaptationGainTxt1("Data/Adaptation_Lambda.txt");
-ofstream adaptationGainTxt2("Data/Adaptation_EI_Ratios_Mean.txt");
-ofstream adaptationGainTxt3("Data/Adaptation_Phi.txt");
-ofstream adaptationGainTxt4("Data/Adaptation_EI_Ratios_SD.txt");
+ofstream adaptationGainTxt1("Data/Parameter_Scaling/Lambda.txt");
+ofstream adaptationGainTxt2("Data/Parameter_Scaling/EI_Ratios_Mean.txt");
+ofstream adaptationGainTxt3("Data/Parameter_Scaling/Phi.txt");
+ofstream adaptationGainTxt4("Data/Parameter_Scaling/EI_Ratios_SD.txt");
 
 ofstream plateauTimeTxt("Data/Plateau_Times.txt");
 ofstream plateauNeuronsTxt("Data/Plateau_Neurons.txt");
 
-ofstream adaptationGainTxt5("Data/Adaptation_Exc_MeanThreshold.txt");
-ofstream adaptationGainTxt6("Data/Adaptation_Inh_MeanThreshold.txt");
-ofstream adaptationGainTxt7("Data/Adaptation_MeanThreshold.txt");
+ofstream adaptationGainTxt5("Data/Parameter_Scaling/Exc_MeanThreshold.txt");
+ofstream adaptationGainTxt6("Data/Parameter_Scaling/Inh_MeanThreshold.txt");
+ofstream adaptationGainTxt7("Data/Parameter_Scaling/MeanThreshold.txt");
 
-ofstream adaptationGainTxt8("Data/Adaptation_Exc_ThresholdSD.txt");
-ofstream adaptationGainTxt9("Data/Adaptation_Inh_ThresholdSD.txt");
-ofstream adaptationGainTxt10("Data/Adaptation_ThresholdSD.txt");
+ofstream adaptationGainTxt8("Data/Parameter_Scaling/Exc_ThresholdSD.txt");
+ofstream adaptationGainTxt9("Data/Parameter_Scaling/Inh_ThresholdSD.txt");
+ofstream adaptationGainTxt10("Data/Parameter_Scaling/ThresholdSD.txt");
 
-ofstream adaptationGainTxt11("Data/Adaptation_Exc_EI_Ratio_Mean.txt");
-ofstream adaptationGainTxt12("Data/Adaptation_Inh_EI_Ratio_Mean.txt");
-ofstream adaptationGainTxt13("Data/Adaptation_Exc_EI_Ratio_SD.txt");
-ofstream adaptationGainTxt14("Data/Adaptation_Inh_EI_Ratio_SD.txt");
+ofstream adaptationGainTxt11("Data/Parameter_Scaling/Exc_EI_Ratio_Mean.txt");
+ofstream adaptationGainTxt12("Data/Parameter_Scaling/Inh_EI_Ratio_Mean.txt");
+ofstream adaptationGainTxt13("Data/Parameter_Scaling/Exc_EI_Ratio_SD.txt");
+ofstream adaptationGainTxt14("Data/Parameter_Scaling/Inh_EI_Ratio_SD.txt");
 
-ofstream adaptationGainTxt15("Data/Adaptation_Exc_M_inf.txt");
-ofstream adaptationGainTxt16("Data/Adaptation_Inh_M_inf.txt");
-ofstream adaptationGainTxt17("Data/Adaptation_Exc_Theta_inf.txt");
-ofstream adaptationGainTxt18("Data/Adaptation_Inh_Theta_inf.txt");
+ofstream adaptationGainTxt15("Data/Parameter_Scaling/Exc_M_inf.txt");
+ofstream adaptationGainTxt16("Data/Parameter_Scaling/Inh_M_inf.txt");
+ofstream adaptationGainTxt17("Data/Parameter_Scaling/Exc_Theta_inf.txt");
+ofstream adaptationGainTxt18("Data/Parameter_Scaling/Inh_Theta_inf.txt");
 
-ofstream adaptationGainTxt19("Data/Adaptation_TotalInput_Exc_Mean.txt");
-ofstream adaptationGainTxt20("Data/Adaptation_TotalInput_Inh_Mean.txt");
-ofstream adaptationGainTxt21("Data/Adaptation_TotalInput_Exc_SD.txt");
-ofstream adaptationGainTxt22("Data/Adaptation_TotalInput_Inh_SD.txt");
-ofstream adaptationGainTxt23("Data/Adaptation_TotalInput_Exc_SD_Inf.txt");
-ofstream adaptationGainTxt24("Data/Adaptation_TotalInput_Inh_SD_Inf.txt");
-ofstream adaptationGainTxt25("Data/Adaptation_Exc_ThresholdSD_inf.txt");
-ofstream adaptationGainTxt26("Data/Adaptation_Inh_ThresholdSD_inf.txt");
+ofstream adaptationGainTxt19("Data/Parameter_Scaling/TotalInput_Exc_Mean.txt");
+ofstream adaptationGainTxt20("Data/Parameter_Scaling/TotalInput_Inh_Mean.txt");
+ofstream adaptationGainTxt21("Data/Parameter_Scaling/TotalInput_Exc_SD.txt");
+ofstream adaptationGainTxt22("Data/Parameter_Scaling/TotalInput_Inh_SD.txt");
+ofstream adaptationGainTxt23("Data/Parameter_Scaling/TotalInput_Exc_SD_Inf.txt");
+ofstream adaptationGainTxt24("Data/Parameter_Scaling/TotalInput_Inh_SD_Inf.txt");
+ofstream adaptationGainTxt25("Data/Parameter_Scaling/Exc_ThresholdSD_inf.txt");
+ofstream adaptationGainTxt26("Data/Parameter_Scaling/Inh_ThresholdSD_inf.txt");
+
+ofstream adaptationGainTxt27("Data/Parameter_Scaling/Exc_EI_Ratio_Mean_inf.txt");
+ofstream adaptationGainTxt28("Data/Parameter_Scaling/Inh_EI_Ratio_Mean_inf.txt");
+ofstream adaptationGainTxt29("Data/Parameter_Scaling/EI_Ratio_Mean_inf.txt");
+ofstream adaptationGainTxt30("Data/Parameter_Scaling/Exc_EI_Ratio_SD_inf.txt");
+ofstream adaptationGainTxt31("Data/Parameter_Scaling/Inh_EI_Ratio_SD_inf.txt");
+ofstream adaptationGainTxt32("Data/Parameter_Scaling/EI_Ratio_SD_inf.txt");
+
+ofstream adaptationGainTxt33("Data/Parameter_Scaling/MeanThreshold_inf.txt");
+ofstream adaptationGainTxt34("Data/Parameter_Scaling/ThresholdSD_inf.txt");
+
+ofstream adaptationGainTxt35("Data/Parameter_Scaling/Exc_M_SD_inf.txt");
+ofstream adaptationGainTxt36("Data/Parameter_Scaling/Inh_M_SD_inf.txt");
+
+ofstream adaptationGainTxt37("Data/Parameter_Scaling/EInput_Exc_Mean.txt");
+ofstream adaptationGainTxt38("Data/Parameter_Scaling/EInput_Inh_Mean.txt");
+ofstream adaptationGainTxt39("Data/Parameter_Scaling/EInput_Mean.txt");
+ofstream adaptationGainTxt40("Data/Parameter_Scaling/EInput_Exc_Mean_inf.txt");
+ofstream adaptationGainTxt41("Data/Parameter_Scaling/EInput_Inh_Mean_inf.txt");
+ofstream adaptationGainTxt42("Data/Parameter_Scaling/EInput_Mean_inf.txt");
+ofstream adaptationGainTxt43("Data/Parameter_Scaling/EInput_Exc_SD.txt");
+ofstream adaptationGainTxt44("Data/Parameter_Scaling/EInput_Inh_SD.txt");
+ofstream adaptationGainTxt45("Data/Parameter_Scaling/EInput_SD.txt");
+ofstream adaptationGainTxt46("Data/Parameter_Scaling/EInput_Exc_SD_inf.txt");
+ofstream adaptationGainTxt47("Data/Parameter_Scaling/EInput_Inh_SD_Inf.txt");
+ofstream adaptationGainTxt48("Data/Parameter_Scaling/EInput_SD_inf.txt");
+
+ofstream adaptationGainTxt49("Data/Parameter_Scaling/IInput_Exc_Mean.txt");
+ofstream adaptationGainTxt50("Data/Parameter_Scaling/IInput_Inh_Mean.txt");
+ofstream adaptationGainTxt51("Data/Parameter_Scaling/IInput_Mean.txt");
+ofstream adaptationGainTxt52("Data/Parameter_Scaling/IInput_Exc_Mean_inf.txt");
+ofstream adaptationGainTxt53("Data/Parameter_Scaling/IInput_Inh_Mean_inf.txt");
+ofstream adaptationGainTxt54("Data/Parameter_Scaling/IInput_Mean_inf.txt");
+ofstream adaptationGainTxt55("Data/Parameter_Scaling/IInput_Exc_SD.txt");
+ofstream adaptationGainTxt56("Data/Parameter_Scaling/IInput_Inh_SD.txt");
+ofstream adaptationGainTxt57("Data/Parameter_Scaling/IInput_SD.txt");
+ofstream adaptationGainTxt58("Data/Parameter_Scaling/IInput_Exc_SD_inf.txt");
+ofstream adaptationGainTxt59("Data/Parameter_Scaling/IInput_Inh_SD_Inf.txt");
+ofstream adaptationGainTxt60("Data/Parameter_Scaling/IInput_SD_inf.txt");
+
 
 //Inputs
 //format: time, total input, excitatory input, inhibitory input
@@ -372,9 +493,9 @@ for(int i=0;i<inh_mean_threshold.size();i++){
 }
 
 
-//Adaptation Scaling - lambda & Phi vs. EI ratios/ Mean threshold
+//Parameter Scaling
 
-for (int i=0;i<meanEIratioVector.size();i++){
+for (int i=0;i<phiVector.size();i++){
   adaptationGainTxt1 << lambdaVector[i] << endl;
   adaptationGainTxt2 << meanEIratioVector[i] << endl;
   adaptationGainTxt3 << phiVector[i]<< endl;
@@ -401,6 +522,45 @@ for (int i=0;i<meanEIratioVector.size();i++){
   adaptationGainTxt24 << totalInputInhSDInfVector[i] << endl;
   adaptationGainTxt25 << sdExcInfThresholdVector[i] << endl;
   adaptationGainTxt26 << sdInhInfThresholdVector[i] << endl;
+
+  adaptationGainTxt27 << meanEIratioInfVector[i] << endl;
+  adaptationGainTxt28 << meanExcEIratioInfVector[i] << endl;
+  adaptationGainTxt29 << meanInhEIratioInfVector[i] << endl;
+  adaptationGainTxt30 << standardDeviationEIratioInfVector[i]<<endl;
+  adaptationGainTxt31 << standardDeviationExcEIratioInfVector[i] <<endl;
+  adaptationGainTxt32 << standardDeviationInhEIratioInfVector[i] << endl;
+
+  adaptationGainTxt33 << theta_inf_vector[i] <<endl;
+  adaptationGainTxt34 << sdInfThresholdVector[i] << endl;
+
+  adaptationGainTxt35 << m_exc_sd_inf_vector[i] << endl;
+  adaptationGainTxt36 << m_inh_sd_inf_vector[i] <<endl;
+
+  adaptationGainTxt37 << EInputExcMeanVector[i] <<endl;
+  adaptationGainTxt38 << EInputInhMeanVector[i] <<endl;
+  adaptationGainTxt39 << EInputMeanVector[i] <<endl;
+  adaptationGainTxt40 << EInputExcMeanInfVector[i] <<endl;
+  adaptationGainTxt41 << EInputInhMeanInfVector[i] <<endl;
+  adaptationGainTxt42 << EInputMeanInfVector[i] <<endl;
+  adaptationGainTxt43 << EInputExcSDVector[i] <<endl;
+  adaptationGainTxt44 << EInputInhSDVector[i] <<endl;
+  adaptationGainTxt45 << EInputSDVector[i] <<endl;
+  adaptationGainTxt46 << EInputExcSDInfVector[i] <<endl;
+  adaptationGainTxt47 << EInputInhSDInfVector[i] <<endl;
+  adaptationGainTxt48 << EInputSDInfVector[i] <<endl;
+
+  adaptationGainTxt49 << IInputExcMeanVector[i] <<endl;
+  adaptationGainTxt50 << IInputInhMeanVector[i] <<endl;
+  adaptationGainTxt51 << IInputMeanVector[i] <<endl;
+  adaptationGainTxt52 << IInputExcMeanInfVector[i] <<endl;
+  adaptationGainTxt53 << IInputInhMeanInfVector[i] <<endl;
+  adaptationGainTxt54 << IInputMeanInfVector[i] <<endl;
+  adaptationGainTxt55 << IInputExcSDVector[i] <<endl;
+  adaptationGainTxt56 << IInputInhSDVector[i] <<endl;
+  adaptationGainTxt57 << IInputSDVector[i] <<endl;
+  adaptationGainTxt58 << IInputExcSDInfVector[i] <<endl;
+  adaptationGainTxt59 << IInputInhSDInfVector[i] <<endl;
+  adaptationGainTxt60 << IInputSDInfVector[i] <<endl;
 }
 
 
@@ -425,7 +585,7 @@ parametersTxt << "Neuron ratios(Exc/Inh): " + to_string(Num_Excitatory_Neurons/N
 parametersTxt << "K: " + to_string(K) << endl;
 parametersTxt << "m_0: " + to_string(nVector[0]->m_0) << endl;
 parametersTxt << "External Input: " + to_string(nVector[0]->externalInput) << endl;
-parametersTxt << "Number of updates: " + to_string(update_steps) <<endl;
+parametersTxt << "Number of updates: " + to_string(update_times) <<endl;
 parametersTxt << "Adaptation Jump: " + to_string(nVector[0]->adaptation_jump) << endl;
 parametersTxt << "lambda: " + to_string(nVector[0]->decay_constant) << endl;
 parametersTxt << " " << endl;

@@ -17,7 +17,6 @@ Neuron::Neuron(int number, string population, double K, double m_0,
   this->number = number;
   this->population = population;
   this->externalRateFactor = externalRateFactor;
-  inf_size = 10000;
 
   this->m_0 = m_0;
   last_spike_time =0;

@@ -18,6 +18,7 @@ double externalRateFactor, double phi, double lambda,double update_times){
   time = 0;
   this->update_times = update_times;
   update_count=0;
+  inf_size = 500000;
 
   //network = new AdjacencyListGraph<Neuron*,string,double>;
   minimum_time_queue = new STLPriorityQueue<double,Neuron*>;
@@ -150,6 +151,20 @@ vector<double> Balanced_Network::getExcEI_Ratios(){
   return EI_Ratio_Collection_Exc;
 }
 
+vector<double> Balanced_Network::getEI_Ratios_inf(){
+  return EI_Ratio_Collection_inf;
+}
+
+vector<double> Balanced_Network::getExcEI_Ratios_inf(){
+  return EI_Ratio_Collection_Exc_inf;
+}
+
+vector<double> Balanced_Network::getInhEI_Ratios_inf(){
+  return EI_Ratio_Collection_Inh_inf;
+}
+
+
+
 vector<pair<double,double>> Balanced_Network::getExcMeanAtv(){
   return excitatoryActivityTimeSeries;
 }
@@ -230,6 +245,7 @@ double Balanced_Network::getMeanExcThreshold(){
   for(int i=0;i<meanExcThresholdTimeSeries.size();i++){
     thresholds.push_back(meanExcThresholdTimeSeries[i].second/N_E);
   }
+  //cout << thresholds.size() << endl;
   return mean(thresholds);
 }
 
@@ -247,6 +263,42 @@ double Balanced_Network::getMeanThreshold(){
     thresholds.push_back(meanExcThresholdTimeSeries[i].second/N_E);
   }
   for (int i=0;i<meanInhThresholdTimeSeries.size();i++){
+    thresholds.push_back(meanInhThresholdTimeSeries[i].second/N_I);
+  }
+  return mean(thresholds);
+}
+
+
+double Balanced_Network::getTheta_exc_inf(){
+  double sum =0;
+  double count =0;
+  int size = meanExcThresholdTimeSeries.size();
+  //we take an average of the last 40000 data to approximate m_inf
+  for (int i=size-40000;i<size;i++){
+    sum += (meanExcThresholdTimeSeries[i].second/N_E);
+    count++;
+  }
+  return sum/count;
+}
+
+double Balanced_Network::getTheta_inh_inf(){
+  double sum =0;
+  double count =0;
+  int size = meanInhThresholdTimeSeries.size();
+  //we take an average of the last 10000 data to approximate m_inf
+  for (int i=size-10000;i<size;i++){
+    sum += (meanInhThresholdTimeSeries[i].second/N_I);
+    count++;
+  }
+  return sum/count;
+}
+
+double Balanced_Network::getTheta_inf(){
+  vector<double> thresholds;
+  for (int i=meanExcThresholdTimeSeries.size()-40000;i<meanExcThresholdTimeSeries.size();i++){
+    thresholds.push_back(meanExcThresholdTimeSeries[i].second/N_E);
+  }
+  for (int i=meanInhThresholdTimeSeries.size()-10000;i<meanInhThresholdTimeSeries.size();i++){
     thresholds.push_back(meanInhThresholdTimeSeries[i].second/N_I);
   }
   return mean(thresholds);
@@ -289,7 +341,7 @@ double Balanced_Network::getThresholdSD(){
 double Balanced_Network::getExcThresholdSD(){
   vector<double> vector;
   for (int i=0;i<N_E+N_I;i++){
-    neuron = neuron_Vector[i];
+    Neuron* neuron = neuron_Vector[i];
     if (neuron->population == "E"){
       vector.push_back(neuron->thresholdSum/neuron->update_count_neuronal);
     }
@@ -300,7 +352,7 @@ double Balanced_Network::getExcThresholdSD(){
 double Balanced_Network::getInhThresholdSD(){
   vector<double> vector;
   for (int i=0;i<N_E+N_I;i++){
-    neuron = neuron_Vector[i];
+    Neuron* neuron = neuron_Vector[i];
     if (neuron->population == "I"){
       vector.push_back(neuron->thresholdSum/neuron->update_count_neuronal);
     }
@@ -311,7 +363,7 @@ double Balanced_Network::getInhThresholdSD(){
 double Balanced_Network::getThresholdSD(){
   vector<double> vector;
   for (int i=0;i<N_E+N_I;i++){
-    neuron = neuron_Vector[i];
+    Neuron* neuron = neuron_Vector[i];
     vector.push_back(neuron->thresholdSum/neuron->update_count_neuronal);
   }
   return standardDeviation(vector);
@@ -350,30 +402,26 @@ double Balanced_Network::getM_inh_inf(){
   return sum/count;
 }
 
-
-double Balanced_Network::getTheta_exc_inf(){
-  double sum =0;
-  double count =0;
-  int size = meanExcThresholdTimeSeries.size();
+double Balanced_Network::getM_exc_sd_inf(){
+  vector<double> vector;
+  int size = excitatoryActivityTimeSeries.size();
   //we take an average of the last 500 data to approximate m_inf
   for (int i=size-40000;i<size;i++){
-    sum += meanExcThresholdTimeSeries[i].second/N_E;
-    count++;
+    vector.push_back(excitatoryActivityTimeSeries[i].second/N_E);
   }
-  return sum/count;
+  return standardDeviation(vector);
 }
 
-double Balanced_Network::getTheta_inh_inf(){
-  double sum =0;
-  double count =0;
-  int size = meanInhThresholdTimeSeries.size();
+double Balanced_Network::getM_inh_sd_inf(){
+  vector<double> vector;
+  int size = inhibitoryActivityTimeSeries.size();
   //we take an average of the last 500 data to approximate m_inf
   for (int i=size-10000;i<size;i++){
-    sum += meanInhThresholdTimeSeries[i].second/N_I;
-    count++;
+    vector.push_back(inhibitoryActivityTimeSeries[i].second/N_E);
   }
-  return sum/count;
+  return standardDeviation(vector);
 }
+
 
 //temporal SD
 /*
@@ -406,9 +454,9 @@ double Balanced_Network::getTheta_inh_inf_SD(){
 double Balanced_Network::getTheta_exc_inf_SD(){
   vector<double> vector;
   for (int i=0;i<N_E+N_I;i++){
-    neuron = neuron_Vector[i];
+    Neuron* neuron = neuron_Vector[i];
     if (neuron->population == "E"){
-      vector.push_back(neuron->thresholdSum_inf/neuron->inf_size);
+      vector.push_back(neuron->thresholdSum_inf/neuron->update_count_neuronal_inf);
     }
   }
   return standardDeviation(vector);
@@ -417,9 +465,9 @@ double Balanced_Network::getTheta_exc_inf_SD(){
 double Balanced_Network::getTheta_inh_inf_SD(){
   vector<double> vector;
   for (int i=0;i<N_E+N_I;i++){
-    neuron = neuron_Vector[i];
-    if (neuron->population == "E"){
-      vector.push_back(neuron->thresholdSum_inf/neuron->inf_size);
+    Neuron* neuron = neuron_Vector[i];
+    if (neuron->population == "I"){
+      vector.push_back(neuron->thresholdSum_inf/neuron->update_count_neuronal_inf);
     }
   }
   return standardDeviation(vector);
@@ -428,8 +476,8 @@ double Balanced_Network::getTheta_inh_inf_SD(){
 double Balanced_Network::getTheta_inf_SD(){
   vector<double> vector;
   for (int i=0;i<N_E+N_I;i++){
-    neuron = neuron_Vector[i];
-    vector.push_back(neuron->thresholdSum_inf/neuron->inf_size);
+    Neuron* neuron = neuron_Vector[i];
+    vector.push_back(neuron->thresholdSum_inf/neuron->update_count_neuronal_inf);
   }
   return standardDeviation(vector);
 }
@@ -487,7 +535,7 @@ double Balanced_Network::getTotalInputInhSDInf(){
 double Balanced_Network::getTotalInputExcSD(){
   vector<double> vector;
   for (int i=0;i<N_E+N_I;i++){
-    neuron = neuron_Vector[i];
+    Neuron* neuron = neuron_Vector[i];
     if (neuron->population == "E"){
       vector.push_back(neuron->totalInput_Sum/neuron->update_count_neuronal);
     }
@@ -498,7 +546,7 @@ double Balanced_Network::getTotalInputExcSD(){
 double Balanced_Network::getTotalInputInhSD(){
   vector<double> vector;
   for (int i=0;i<N_E+N_I;i++){
-    neuron = neuron_Vector[i];
+    Neuron* neuron = neuron_Vector[i];
     if (neuron->population == "I"){
       vector.push_back(neuron->totalInput_Sum/neuron->update_count_neuronal);
     }
@@ -509,9 +557,9 @@ double Balanced_Network::getTotalInputInhSD(){
 double Balanced_Network::getTotalInputExcSDInf(){
   vector<double> vector;
   for (int i=0;i<N_E+N_I;i++){
-    neuron = neuron_Vector[i];
+    Neuron* neuron = neuron_Vector[i];
     if (neuron->population == "E"){
-      vector.push_back(neuron->totalInput_Sum_inf/neuron->inf_size);
+      vector.push_back(neuron->totalInput_Sum_inf/neuron->update_count_neuronal_inf);
     }
   }
   return standardDeviation(vector);
@@ -520,9 +568,9 @@ double Balanced_Network::getTotalInputExcSDInf(){
 double Balanced_Network::getTotalInputInhSDInf(){
   vector<double> vector;
   for (int i=0;i<N_E+N_I;i++){
-    neuron = neuron_Vector[i];
-    if (neuron->population == "E"){
-      vector.push_back(neuron->totalInput_Sum_inf/neuron->inf_size);
+    Neuron* neuron = neuron_Vector[i];
+    if (neuron->population == "I"){
+      vector.push_back(neuron->totalInput_Sum_inf/neuron->update_count_neuronal_inf);
     }
   }
   return standardDeviation(vector);
@@ -532,67 +580,252 @@ double Balanced_Network::getTotalInputInhSDInf(){
 
 
 double Balanced_Network::getEInputExcMean(){
-
+  vector<double> vector;
+  for (int i=0;i<N_E+N_I;i++){
+    Neuron* neuron = neuron_Vector[i];
+    if (neuron->population == "E"){
+      vector.push_back(neuron->E_Input/neuron->update_count_neuronal);
+    }
+  }
+  return mean(vector);
 }
+
 double Balanced_Network::getEInputInhMean(){
+  vector<double> vector;
+  for (int i=0;i<N_E+N_I;i++){
+    Neuron* neuron = neuron_Vector[i];
+    if (neuron->population == "I"){
+      vector.push_back(neuron->E_Input/neuron->update_count_neuronal);
+    }
+  }
+  return mean(vector);
+}
 
+double Balanced_Network::getEInputMean(){
+  vector<double> vector;
+  for (int i=0;i<N_E+N_I;i++){
+    Neuron* neuron = neuron_Vector[i];
+    vector.push_back(neuron->E_Input/neuron->update_count_neuronal);
+  }
+  return mean(vector);
 }
 
 double Balanced_Network::getEInputExcMeanInf(){
-
+  vector<double> vector;
+  for (int i=0;i<N_E+N_I;i++){
+    Neuron* neuron = neuron_Vector[i];
+    if (neuron->population == "E"){
+      vector.push_back(neuron->E_Input_inf/neuron->update_count_neuronal_inf);
+    }
+  }
+  return mean(vector);
 }
 
-double Balanced_Network::getEInputExcMeanInf(){
+double Balanced_Network::getEInputInhMeanInf(){
+  vector<double> vector;
+  for (int i=0;i<N_E+N_I;i++){
+    Neuron* neuron = neuron_Vector[i];
+    if (neuron->population == "I"){
+      vector.push_back(neuron->E_Input_inf/neuron->update_count_neuronal_inf);
+    }
+  }
+  return mean(vector);
+}
 
+double Balanced_Network::getEInputMeanInf(){
+  vector<double> vector;
+  for (int i=0;i<N_E+N_I;i++){
+    Neuron* neuron = neuron_Vector[i];
+    vector.push_back(neuron->E_Input_inf/neuron->update_count_neuronal_inf);
+  }
+  return mean(vector);
 }
 
 double Balanced_Network::getEInputExcSD(){
-
+  vector<double> vector;
+  for (int i=0;i<N_E+N_I;i++){
+    Neuron* neuron = neuron_Vector[i];
+    if (neuron->population == "E"){
+      vector.push_back(neuron->E_Input/neuron->update_count_neuronal);
+    }
+  }
+  return standardDeviation(vector);
 }
 
 double Balanced_Network::getEInputInhSD(){
-
+  vector<double> vector;
+  for (int i=0;i<N_E+N_I;i++){
+    Neuron* neuron = neuron_Vector[i];
+    if (neuron->population == "I"){
+      vector.push_back(neuron->E_Input/neuron->update_count_neuronal);
+    }
+  }
+  return standardDeviation(vector);
 }
+
+double Balanced_Network::getEInputSD(){
+  vector<double> vector;
+  for (int i=0;i<N_E+N_I;i++){
+    Neuron* neuron = neuron_Vector[i];
+    vector.push_back(neuron->E_Input/neuron->update_count_neuronal);
+  }
+  return standardDeviation(vector);
+}
+
 double Balanced_Network::getEInputExcSDInf(){
-
+  vector<double> vector;
+  for (int i=0;i<N_E+N_I;i++){
+    Neuron* neuron = neuron_Vector[i];
+    if (neuron->population == "E"){
+      vector.push_back(neuron->E_Input_inf/neuron->update_count_neuronal_inf);
+    }
+  }
+  return standardDeviation(vector);
 }
-double Balanced_Network::getEInputInhSDInf(){
 
+double Balanced_Network::getEInputInhSDInf(){
+  vector<double> vector;
+  for (int i=0;i<N_E+N_I;i++){
+    Neuron* neuron = neuron_Vector[i];
+    if (neuron->population == "I"){
+      vector.push_back(neuron->E_Input_inf/neuron->update_count_neuronal_inf);
+    }
+  }
+  return standardDeviation(vector);
+}
+
+double Balanced_Network::getEInputSDInf(){
+  vector<double> vector;
+  for (int i=0;i<N_E+N_I;i++){
+    Neuron* neuron = neuron_Vector[i];
+    vector.push_back(neuron->E_Input_inf/neuron->update_count_neuronal_inf);
+  }
+  return standardDeviation(vector);
 }
 
 double Balanced_Network::getIInputExcMean(){
-
+  vector<double> vector;
+  for (int i=0;i<N_E+N_I;i++){
+    Neuron* neuron = neuron_Vector[i];
+    if (neuron->population == "E"){
+      vector.push_back(neuron->I_Input/neuron->update_count_neuronal);
+    }
+  }
+  return mean(vector);
 }
 
 double Balanced_Network::getIInputInhMean(){
+  vector<double> vector;
+  for (int i=0;i<N_E+N_I;i++){
+    Neuron* neuron = neuron_Vector[i];
+    if (neuron->population == "I"){
+      vector.push_back(neuron->I_Input/neuron->update_count_neuronal);
+    }
+  }
+  return mean(vector);
+}
 
+double Balanced_Network::getIInputMean(){
+  vector<double> vector;
+  for (int i=0;i<N_E+N_I;i++){
+    Neuron* neuron = neuron_Vector[i];
+    vector.push_back(neuron->I_Input/neuron->update_count_neuronal);
+  }
+  return mean(vector);
 }
 
 double Balanced_Network::getIInputExcMeanInf(){
-
+  vector<double> vector;
+  for (int i=0;i<N_E+N_I;i++){
+    Neuron* neuron = neuron_Vector[i];
+    if (neuron->population == "E"){
+      vector.push_back(neuron->I_Input_inf/neuron->update_count_neuronal_inf);
+    }
+  }
+  return mean(vector);
 }
 
-double Balanced_Network::getIInputExcMeanInf(){
+double Balanced_Network::getIInputInhMeanInf(){
+  vector<double> vector;
+  for (int i=0;i<N_E+N_I;i++){
+    Neuron* neuron = neuron_Vector[i];
+    if (neuron->population == "I"){
+      vector.push_back(neuron->I_Input_inf/neuron->update_count_neuronal_inf);
+    }
+  }
+  return mean(vector);
+}
 
+double Balanced_Network::getIInputMeanInf(){
+  vector<double> vector;
+  for (int i=0;i<N_E+N_I;i++){
+    Neuron* neuron = neuron_Vector[i];
+    vector.push_back(neuron->I_Input_inf/neuron->update_count_neuronal_inf);
+  }
+  return mean(vector);
 }
 
 double Balanced_Network::getIInputExcSD(){
-
+  vector<double> vector;
+  for (int i=0;i<N_E+N_I;i++){
+    Neuron* neuron = neuron_Vector[i];
+    if (neuron->population == "E"){
+      vector.push_back(neuron->I_Input/neuron->update_count_neuronal);
+    }
+  }
+  return standardDeviation(vector);
 }
 
 double Balanced_Network::getIInputInhSD(){
+  vector<double> vector;
+  for (int i=0;i<N_E+N_I;i++){
+    Neuron* neuron = neuron_Vector[i];
+    if (neuron->population == "I"){
+      vector.push_back(neuron->I_Input/neuron->update_count_neuronal);
+    }
+  }
+  return standardDeviation(vector);
+}
 
+double Balanced_Network::getIInputSD(){
+  vector<double> vector;
+  for (int i=0;i<N_E+N_I;i++){
+    Neuron* neuron = neuron_Vector[i];
+    vector.push_back(neuron->I_Input/neuron->update_count_neuronal);
+  }
+  return standardDeviation(vector);
 }
 
 double Balanced_Network::getIInputExcSDInf(){
-
+  vector<double> vector;
+  for (int i=0;i<N_E+N_I;i++){
+    Neuron* neuron = neuron_Vector[i];
+    if (neuron->population == "E"){
+      vector.push_back(neuron->I_Input_inf/neuron->update_count_neuronal_inf);
+    }
+  }
+  return standardDeviation(vector);
 }
 
 double Balanced_Network::getIInputInhSDInf(){
-
+  vector<double> vector;
+  for (int i=0;i<N_E+N_I;i++){
+    Neuron* neuron = neuron_Vector[i];
+    if (neuron->population == "I"){
+      vector.push_back(neuron->I_Input_inf/neuron->update_count_neuronal_inf);
+    }
+  }
+  return standardDeviation(vector);
 }
 
-
+double Balanced_Network::getIInputSDInf(){
+  vector<double> vector;
+  for (int i=0;i<N_E+N_I;i++){
+    Neuron* neuron = neuron_Vector[i];
+    vector.push_back(neuron->I_Input_inf/neuron->update_count_neuronal_inf);
+  }
+  return standardDeviation(vector);
+}
 
 
 STLPriorityQueue<double,Neuron*>* Balanced_Network::getPQ(){
@@ -1019,7 +1252,7 @@ void Balanced_Network::update2(){
 
   //The other way of averaging - time average for a single neuron first.
   neuron_to_update->thresholdSum+=neuron_to_update->threshold;
-  if (update_count > update_times - neuron_to_update->inf_size){
+  if (update_count > update_times - inf_size){
     neuron_to_update->thresholdSum_inf+=neuron_to_update->threshold;
   }
 
@@ -1087,6 +1320,13 @@ void Balanced_Network::update2(){
       neuron_to_update->EI_Ratio += (neuron_to_update->totalExcitatoryInput/
       neuron_to_update->totalInhibitoryInput);
       neuron_to_update->update_count++;
+      if (update_count > update_times - inf_size){
+        neuron_to_update->EI_Ratio_inf+= (neuron_to_update->totalExcitatoryInput/
+        neuron_to_update->totalInhibitoryInput);
+        neuron_to_update->update_count_inf++;
+        //cout << "Ratio: " + to_string(neuron_to_update->EI_Ratio_inf) << endl;
+        //cout << "Count: " + to_string(neuron_to_update->update_count_inf) << endl;
+      }
     }
     /*
     neuron_to_update->EI_Ratio_Exc += neuron_to_update->totalExcitatoryInput;
@@ -1180,10 +1420,14 @@ void Balanced_Network::update2(){
     neuron_to_update->E_Input+=neuron_to_update->totalExcitatoryInput;
     neuron_to_update->I_Input+=neuron_to_update->totalInhibitoryInput;
 
-    if (update_count > update_times - neuron_to_update->inf_size){
+    if (update_count > update_times - inf_size){
       neuron_to_update->totalInput_Sum_inf+=neuron_to_update->totalInput-neuron_to_update->threshold;
       neuron_to_update->E_Input_inf+=neuron_to_update->totalExcitatoryInput;
       neuron_to_update->I_Input_inf+=neuron_to_update->totalInhibitoryInput;
+      neuron_to_update->update_count_neuronal_inf++;
+      if(neuron_to_update->population == "I"){
+        //cout << "E_Input_inf: " + to_string(neuron_to_update->E_Input_inf) <<endl;
+      }
     }
 
     if (neuron_to_update->population == "E"){
@@ -1194,7 +1438,9 @@ void Balanced_Network::update2(){
       totalInput_inh.push_back(neuron_to_update->totalInput-neuron_to_update->threshold);
       totalInput_inh_timeSeries.push_back(data_total);
     }
-    //record(data_total,data_exc,data_inh,neuron_to_update);
+
+    //cout << "update_count_neuronal: " + to_string(neuron_to_update->update_count_neuronal);
+
 }
 
 
@@ -1203,18 +1449,22 @@ void Balanced_Network::addEI_Ratios(){
   for (int i=0;i<neuron_Vector.size();i++){
     EI_Ratio_Collection.push_back(neuron_Vector[i]->EI_Ratio /
       neuron_Vector[i]->update_count);
-    /*
-    EI_Ratio_Collection.push_back(neuron_Vector[i]->EI_Ratio_Exc/
-    neuron_Vector[i]->EI_Ratio_Inh);
-    */
+    EI_Ratio_Collection_inf.push_back(neuron_Vector[i]->EI_Ratio_inf
+      / neuron_Vector[i]->update_count_inf);
   }
+
   for (int i=0;i<N_E;i++){
     EI_Ratio_Collection_Exc.push_back(neuron_Vector[i]->EI_Ratio
       / neuron_Vector[i]->update_count);
+    EI_Ratio_Collection_Exc_inf.push_back(neuron_Vector[i]->EI_Ratio_inf
+      / neuron_Vector[i]->update_count_inf);
   }
+
   for (int i=N_E;i<neuron_Vector.size();i++){
     EI_Ratio_Collection_Inh.push_back(neuron_Vector[i]->EI_Ratio
     / neuron_Vector[i]->update_count);
+    EI_Ratio_Collection_Inh_inf.push_back(neuron_Vector[i]->EI_Ratio_inf
+    / neuron_Vector[i]->update_count_inf);
   }
 }
 

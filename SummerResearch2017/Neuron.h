@@ -50,7 +50,7 @@ public:
   double externalRateFactor;
 
   double update_count_neuronal;
-  double inf_size;
+  double update_count_neuronal_inf;
 
   double state;
   double previous_state;
@@ -73,7 +73,9 @@ public:
 
   //EI Ratios
   double EI_Ratio;
+  double EI_Ratio_inf;
   double update_count;
+  double update_count_inf;
 
   //E Inputs and I Inputs
   double E_Input;

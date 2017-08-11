@@ -19,7 +19,7 @@ class Balanced_Network{
 public:
   Balanced_Network(double N_E, double N_I, double K,
     double J_EE, double J_EI, double J_IE, double J_II, double m_0,
-     double externalRateFactor, double phi, double lambda);
+     double externalRateFactor, double phi, double lambda,double update_times);
 
   ~Balanced_Network();
 
@@ -45,41 +45,47 @@ public:
   //gets the current time for the network.
   double getTime();
 
+  //EI Ratio
   vector<double> getEI_Ratios();
   vector<double> getExcEI_Ratios();
   vector<double> getInhEI_Ratios();
+  vector<double> getEI_Ratios_inf();
+  vector<double> getExcEI_Ratios_inf();
+  vector<double> getInhEI_Ratios_inf();
 
+  //Mean Activity
   vector<pair<double,double>> getExcMeanAtv();
   vector<pair<double,double>> getInhMeanAtv();
-
+  vector<pair<double,double>> getMeanExcThresholdTimeSeries();
+  vector<pair<double,double>> getMeanInhThresholdTimeSeries();
+  //Not used in the simulation
   pair<double,double> getEM_data_exc();
   pair<double,double> getEM_data_inh();
-
+  //Used in the simulation
   pair<double,double> getEM_data_exc2();
   pair<double,double> getEM_data_inh2();
-
-
   double getEM_data_exc_sd();
   double getEM_data_inh_sd();
   double getM_exc_inf();
   double getM_inh_inf();
+  double getM_exc_sd_inf();
+  double getM_inh_sd_inf();
 
-  double getMeanInhThreshold();
+  //Threshold
   double getMeanExcThreshold();
+  double getMeanInhThreshold();
   double getMeanThreshold();
   double getExcThresholdSD();
   double getInhThresholdSD();
   double getThresholdSD();
-  double getTheta_exc_inf_SD();
-  double getTheta_inh_inf_SD();
   double getTheta_exc_inf();
   double getTheta_inh_inf();
+  double getTheta_inf();
+  double getTheta_exc_inf_SD();
+  double getTheta_inh_inf_SD();
+  double getTheta_inf_SD();
 
-
-  vector<pair<double,double>> getMeanExcThresholdTimeSeries();
-  vector<pair<double,double>> getMeanInhThresholdTimeSeries();
-
-
+  //Total Input
   double getTotalInputExcMean();
   double getTotalInputInhMean();
   double getTotalInputExcSD();
@@ -87,24 +93,34 @@ public:
   double getTotalInputExcSDInf();
   double getTotalInputInhSDInf();
 
-
+  //E Input
   double getEInputExcMean();
   double getEInputInhMean();
+  double getEInputMean();
   double getEInputExcMeanInf();
-  double getEInputExcMeanInf();
+  double getEInputInhMeanInf();
+  double getEInputMeanInf();
   double getEInputExcSD();
   double getEInputInhSD();
+  double getEInputSD();
   double getEInputExcSDInf();
   double getEInputInhSDInf();
+  double getEInputSDInf();
 
+  //I Input
   double getIInputExcMean();
   double getIInputInhMean();
+  double getIInputMean();
   double getIInputExcMeanInf();
-  double getIInputExcMeanInf();
+  double getIInputInhMeanInf();
+  double getIInputMeanInf();
   double getIInputExcSD();
   double getIInputInhSD();
+  double getIInputSD();
   double getIInputExcSDInf();
   double getIInputInhSDInf();
+  double getIInputSDInf();
+
 
   //gets the PQ for the update method.
   //For debugging purpose mostly, can saftely ignore.
@@ -219,6 +235,7 @@ private:
   double** Jmatrix;
   //vector<vector<Neuron*>> adjacencyList;
 
+  double inf_size;
 
   //The number of excitatory and inhibitory neurons
   double N_E;
@@ -243,6 +260,10 @@ private:
   vector<double> EI_Ratio_Collection;
   vector<double> EI_Ratio_Collection_Exc;
   vector<double> EI_Ratio_Collection_Inh;
+  vector<double> EI_Ratio_Collection_inf;
+  vector<double> EI_Ratio_Collection_Exc_inf;
+  vector<double> EI_Ratio_Collection_Inh_inf;
+
   vector<double> network_ISI;
   vector<pair<double,double>> excitatoryActivityTimeSeries;
   vector<pair<double,double>> inhibitoryActivityTimeSeries;
