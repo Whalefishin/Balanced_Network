@@ -36,8 +36,8 @@ const double J_II = -1.8;
 const int update_times = 20;
 const int update_times_Scale = 10000*300;
 
-const double Num_Scale1 = 1;
-const double Num_Scale2 = 1;
+const double Num_Scale1 = 30;
+const double Num_Scale2 = 30;
 
 const double externalRateFactor = 1;
 const double adaptation_jump = 0;
@@ -204,7 +204,6 @@ for (int i=1;i<=Num_Scale2;i++){
   for (int k=0;k<update_times_Scale;k++){
     Neuron* temp = network_scale->chooseRandomNeuron();
     network_scale->update2();
-    //cout << 1;
   }
 
   //Phi & Lambda

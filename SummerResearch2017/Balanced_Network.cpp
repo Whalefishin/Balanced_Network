@@ -1225,6 +1225,10 @@ void Balanced_Network::update2(){
   //choose the minimum one to update(Max of the negatives)
   Neuron* neuron_to_update = minimum_time_queue->removeMax();
   neuron_to_update->update_count_neuronal++;
+  //cout << "Neuron Number: " + to_string(neuron_to_update->vectorNumber) << endl;
+  //cout << "Update Count: " + to_string(neuron_to_update->update_count_neuronal) <<endl;
+  //cout << "Update Count inf: " + to_string(neuron_to_update->update_count_neuronal_inf) <<endl;
+
 
   //update the network time
   time = neuron_to_update->time_to_be_updated;

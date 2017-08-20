@@ -68,10 +68,22 @@ Neuron::Neuron(int number, string population, double K, double m_0,
     totalInhibitoryInput =0;
     totalInput = 0;
     time_to_be_updated = (0+delta)*tau;
+
     EI_Ratio = 0;
+    EI_Ratio_inf =0;
     update_count =0;
+    update_count_inf = 0;
+    update_count_neuronal_inf =0;
+    update_count_neuronal=0;
     E_Input =0;
     I_Input =0;
+    E_Input_inf=0;
+    I_Input_inf=0;
+    thresholdSum=0;
+    thresholdSum_inf=0;
+    totalInput_Sum=0;
+    totalInput_Sum_inf=0;
+
 }
 
 void Neuron::addInputData(pair<double,double> totalInput,
