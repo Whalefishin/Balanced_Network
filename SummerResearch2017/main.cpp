@@ -320,12 +320,12 @@ ofstream excTimeTxt("Data/Exc_Time.txt");
 ofstream inhMean_ActivityTxt("Data/Inh_Mean_Activity.txt");
 ofstream inhTimeTxt("Data/Inh_Time.txt");
 
-ofstream excEMAtvTxt("Data/Exc_EM_activity.txt");
-ofstream excEMRateTxt("Data/Exc_EM_external_rate.txt");
-ofstream inhEMAtvtxt("Data/Inh_EM_activity.txt");
-ofstream inhEMRateTxt("Data/Inh_EM_external_rate.txt");
-ofstream excEMSDTxt("Data/Exc_EM_SD.txt");
-ofstream inhEMSDTxt("Data/Inh_EM_SD.txt");
+ofstream excEMAtvTxt("Data/Parameter_Scaling/Exc_EM_activity.txt");
+ofstream excEMRateTxt("Data/Parameter_Scaling/Exc_EM_external_rate.txt");
+ofstream inhEMAtvtxt("Data/Parameter_Scaling/Inh_EM_activity.txt");
+ofstream inhEMRateTxt("Data/Parameter_Scaling/Inh_EM_external_rate.txt");
+ofstream excEMSDTxt("Data/Parameter_Scaling/Exc_EM_SD.txt");
+ofstream inhEMSDTxt("Data/Parameter_Scaling/Inh_EM_SD.txt");
 
 ofstream thresholdTxt("Data/Threshold.txt");
 ofstream spikeTimesTxt("Data/Spike_times.txt");
