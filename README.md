@@ -1,4 +1,4 @@
-# Balanced_Network
+# Balanced Network
 
 This is the official code used in 
 
